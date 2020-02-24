@@ -1,0 +1,216 @@
+{# @copyright   Copyright (C) 2010-2020 Combodo SARL #}
+{# @license     http://opensource.org/licenses/AGPL-3.0 #}
+
+{% block head %}
+{# @copyright   Copyright (C) 2010-2020 Combodo SARL #}
+{# @license     http://opensource.org/licenses/AGPL-3.0 #}
+
+
+
+var aKBFilesToLoad = [
+
+    // CSS
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/platform.css?v=$sModuleVersion", type: "text" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.css?v=$sModuleVersion", type: "text" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/gantt.css?v=$sModuleVersion", type: "text" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/valueSlider/mb.slider.css?v=$sModuleVersion", type: "text" },
+    // JS
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/jquery.livequery.1.1.1.min.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/jquery.timers.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/utilities.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/forms.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/date.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/dialogs.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/layout.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/i18nJs.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/JST/jquery.JST.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/valueSlider/jquery.mb.slider.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/svg/jquery.svg.min.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/svg/jquery.svgdom.1.8.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/ganttUtilities.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/ganttTask.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/ganttDrawerSVG.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/ganttZoom.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/ganttGridEditor.js?v=$sModuleVersion", type: "script" },
+    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/ganttMaster.js?v=$sModuleVersion", type: "script" },
+];
+var iKBCurrentIdx = 0;
+var iKBFilesToLoadCount = aKBFilesToLoad.length;
+var fKBLoadScript = function(){
+
+     $.when(
+        $.ajax({
+            url: aKBFilesToLoad[iKBCurrentIdx].url,
+            dataType: aKBFilesToLoad[iKBCurrentIdx].type,
+            cache: true
+        })
+            .done(function(){
+                if ( (aKBFilesToLoad[iKBCurrentIdx].type === 'text') && ($('head link[type="text/css"][href="' + aKBFilesToLoad[iKBCurrentIdx].url + '"]').length === 0) )
+                {
+                    $('<link rel="stylesheet" type="text/css" href="' + aKBFilesToLoad[iKBCurrentIdx].url + '" />').appendTo('head');
+                }
+            })
+    )
+        .then(function(){
+            iKBCurrentIdx++;
+            if (iKBCurrentIdx !== iKBFilesToLoadCount)
+            {
+                fKBLoadScript();
+            }
+             else
+			 {
+				 fKBInitCallback();
+			 }
+        });
+};
+fKBLoadScript();
+
+var ge;
+function fKBInitCallback() {
+    var canWrite=true; //this is the default for test purposes
+
+    // here starts gantt initialization
+    console.warn('new GanttMaster');
+    ge = new GanttMaster();
+    ge.set100OnClose=false;
+    ge.fillWithEmptyLines=false;
+    ge.shrinkParent=true;
+    ge.permissions = {
+        canWriteOnParent: true,
+        canWrite: true,
+        canAdd: false,
+        canDelete: false,
+        canInOutdent: false,
+        canMoveUpDown: false,
+        canSeePopEdit: false,
+        canSeeFullEdit: false,
+        canSeeDep: true,
+        canSeeCriticalPath: true,
+        canAddIssue: false,
+        cannotCloseTaskIfIssueOpen: false
+    };
+    ge.resourceUrl = "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/res/";
+	{% if bEditMode %}
+        ge.init($("#workSpaceEdit"));
+	{% else %}
+        ge.init($("#workSpace"));
+	{% endif %}
+    loadI18n(); //overwrite with localized ones
+
+    //in order to force compute the best-fitting zoom level
+    delete ge.gantt.zoom;
+
+    loadGanttFromServer(0,alert);
+}
+
+function loadGanttFromServer(taskId, callback) {
+    console.warn('loadGanttFromServer');
+//    console.warn('sScope:'+{{sScope|raw}});
+    $.post('http://localhost/itopextension/iTop/extensions/combodo-gantt-view/ajax.php?operation=GetProject',
+		    {{sScope|raw}},null,'json')
+        .done(function(data){
+            ge.loadProject(data);
+            ge.checkpoint(); //empty the undo stack
+            var myHeight=Math.min( $(window).height() - $('#TWGanttArea').position().top, ge.rowHeight*data.tasks.length+60);
+            console.warn('myHeight'+myHeight);
+            $('#TWGanttArea').css({ height: myHeight});
+        });
+
+}
+
+function saveGanttOnServer() {
+
+    //this is a simulation: save data to the local storage or to the textarea
+
+    /*
+	var prj = ge.saveProject();
+
+	delete prj.resources;
+	delete prj.roles;
+
+	var prof = new Profiler("saveServerSide");
+	prof.reset();
+
+	if (ge.deletedTaskIds.length>0) {
+	  if (!confirm("TASK_THAT_WILL_BE_REMOVED\n"+ge.deletedTaskIds.length)) {
+		return;
+	  }
+	}
+
+	$.ajax("ganttAjaxController.jsp", {
+	  dataType:"json",
+	  data: {CM:"SVPROJECT",prj:JSON.stringify(prj)},
+	  type:"POST",
+
+	  success: function(response) {
+		if (response.ok) {
+		  prof.stop();
+		  if (response.project) {
+			ge.loadProject(response.project); //must reload as "tmp_" ids are now the good ones
+		  } else {
+			ge.reset();
+		  }
+		} else {
+		  var errMsg="Errors saving project\n";
+		  if (response.message) {
+			errMsg=errMsg+response.message+"\n";
+		  }
+
+		  if (response.errorMessages.length) {
+			errMsg += response.errorMessages.join("\n");
+		  }
+
+		  alert(errMsg);
+		}
+	  }
+
+	});
+	*/
+}
+
+//-------------------------------------------  Get project file as JSON (used for migrate project from gantt to Teamwork) ------------------------------------------------------
+function getFile() {
+    $("#gimBaPrj").val(JSON.stringify(ge.saveProject()));
+    $("#gimmeBack").submit();
+    $("#gimBaPrj").val("");
+
+    /*  var uriContent = "data:text/html;charset=utf-8," + encodeURIComponent(JSON.stringify(prj));
+	 neww=window.open(uriContent,"dl");*/
+}
+
+function showBaselineInfo (event,element){
+    //alert(element.attr("data-label"));
+    $(element).showBalloon(event, $(element).attr("data-label"));
+    ge.splitter.secondBox.one("scroll",function(){
+        $(element).hideBalloon();
+    })
+}
+
+function loadI18n(){
+    GanttMaster.messages = {
+        "CANNOT_WRITE":"No permission to change the following task:",
+        "CHANGE_OUT_OF_SCOPE":"Project update not possible as you lack rights for updating a parent project.",
+        "TASK_HAS_CONSTRAINTS":"Task has constraints.",
+        "GANTT_ERROR_DEPENDS_ON_OPEN_TASK":"Error: there is a dependency on an open task.",
+        "GANTT_ERROR_DESCENDANT_OF_CLOSED_TASK":"Error: due to a descendant of a closed task.",
+        "TASK_HAS_EXTERNAL_DEPS":"This task has external dependencies.",
+        "GANNT_ERROR_LOADING_DATA_TASK_REMOVED":"GANNT_ERROR_LOADING_DATA_TASK_REMOVED",
+        "CIRCULAR_REFERENCE":"Circular reference.",
+        "CANNOT_DEPENDS_ON_ANCESTORS":"Cannot depend on ancestors.",
+        "INVALID_DATE_FORMAT":"The data inserted are invalid for the field format.",
+        "GANTT_ERROR_LOADING_DATA_TASK_REMOVED":"An error has occurred while loading the data. A task has been trashed.",
+        "CANNOT_CLOSE_TASK_IF_OPEN_ISSUE":"Cannot close a task with open issues",
+        "TASK_MOVE_INCONSISTENT_LEVEL":"You cannot exchange tasks of different depth.",
+        "CANNOT_MOVE_TASK":"CANNOT_MOVE_TASK",
+        "PLEASE_SAVE_PROJECT":"PLEASE_SAVE_PROJECT",
+        "GANTT_SEMESTER":"Semester",
+        "GANTT_SEMESTER_SHORT":"s.",
+        "GANTT_QUARTER":"Quarter",
+        "GANTT_QUARTER_SHORT":"q.",
+        "GANTT_WEEK":"Week",
+        "GANTT_WEEK_SHORT":"w."
+    };
+}
+
+{%  endblock %}

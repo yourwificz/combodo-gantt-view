@@ -1,0 +1,103 @@
+{# @copyright   Copyright (C) 2010-2019 Combodo SARL #}
+{# @license     http://opensource.org/licenses/AGPL-3.0 #}
+<div id="{{sId}}" class="gant-container">
+
+	{% if bEditMode %}
+		<div class="main_header">
+			<h1>{{sTitle}}</h1>
+		</div>
+		<div id="workSpaceEdit" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px"></div>
+		<div id="gantEditorTemplates">
+			<div class="__template__" type="GANTBUTTONS"><!-- --></div>
+	{% else %}
+		<form id="gimmeBack" style="display:none;" action="../gimmeBack.jsp" method="post" target="_blank"><input type="hidden" name="prj" id="gimBaPrj"></form>
+		<div id="workSpace" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px"></div>
+		<div id="gantEditorTemplates">
+			<div class="__template__" type="GANTBUTTONS"><!--
+		  <div class="ganttButtonBar noprint main_header">
+			  <h1>{{sTitle}}</h1>
+			    <div class="buttons" style="display: inline;">
+			      <button onclick="$('#workSpace').trigger('expandAll.gantt');return false;" class="button textual icon " title="EXPAND_ALL"><span class="teamworkIcon">6</span></button>
+			      <button onclick="$('#workSpace').trigger('collapseAll.gantt'); return false;" class="button textual icon " title="COLLAPSE_ALL"><span class="teamworkIcon">5</span></button>
+			    <span class="ganttButtonSeparator"></span>
+			      <button onclick="$('#workSpace').trigger('zoomMinus.gantt'); return false;" class="button textual icon " title="zoom out"><span class="teamworkIcon">)</span></button>
+			      <button onclick="$('#workSpace').trigger('zoomPlus.gantt');return false;" class="button textual icon " title="zoom in"><span class="teamworkIcon">(</span></button>
+			   <span class="ganttButtonSeparator"></span>
+			      <button onclick="ge.gantt.showCriticalPath=!ge.gantt.showCriticalPath; ge.redraw();return false;" class="button textual icon requireCanSeeCriticalPath" title="CRITICAL_PATH"><span class="teamworkIcon">&pound;</span></button>
+			    <span class="ganttButtonSeparator requireCanSeeCriticalPath"></span>
+			      <button onclick="ge.splitter.resize(.1);return false;" class="button textual icon" ><span class="teamworkIcon">F</span></button>
+			      <button onclick="ge.splitter.resize(50);return false;" class="button textual icon" ><span class="teamworkIcon">O</span></button>
+			      <button onclick="ge.splitter.resize(100);return false;" class="button textual icon"><span class="teamworkIcon">R</span></button>
+			    </div>
+		    </div>
+		  --></div>
+	{% endif %}
+		<div class="__template__" type="TASKEMPTYROW"><!-- --></div>
+		<!--table with 8 columns minimum-->
+		<div class="__template__" type="TASKSEDITHEAD"><!--
+	  <table class="gdfTable" cellspacing="0" cellpadding="0">
+	    <thead>
+	    <tr style="height:40px">
+
+	      <th class="gdfColHeader gdfResizable" style="min-width:100px;">{{aDescription['attr_label']}}</th>
+	      {% if ( aDescription['attr_add_info1']!='' ) %}
+	        <th class="gdfColHeader gdfResizable" style="min-width:100px;">{{aDescription['attr_add_info1']}}</th>
+	      {% endif %}
+	      {% if aDescription['attr_add_info2']!='' %}
+	        <th class="gdfColHeader gdfResizable" style="min-width:100px;">{{aDescription['attr_add_info2']}}</th>
+	       {% endif %}
+	      <th class="gdfColHeader gdfResizable" style="min-width:80px;">{{aDescription['attr_start_date']}}</th>
+	      <th class="gdfColHeader gdfResizable" style="min-width:80px;">{{aDescription['attr_end_date']}}</th>
+	      <th class="gdfColHeader gdfResizable" style="min-width:20px;">%</th>
+          {% if aDescription['attr_add_info1']=='' %}
+          	    <td class="gdfColHeader gdfResizable" style="min-width:10px;"></td>
+          {% endif %}
+          {% if aDescription['attr_add_info2']=='' %}
+          	    <td class="gdfColHeader gdfResizable" style="min-width:10px;"></td>
+           {% endif %}
+          <th class="gdfColHeader gdfResizable" style="min-width:10px;"></th>
+          <th class="gdfColHeader gdfResizable" style="min-width:100px; text-align: left; padding-left: 10px;"></th>
+	    </tr>
+	    </thead>
+	  </table>
+	  --></div>
+
+		<div class="__template__" type="TASKROW"><!--
+	  <tr id="tid_(#=obj.id#)" taskId="(#=obj.id#)" class="taskEditRow (#=obj.isParent()?'isParent':''#) (#=obj.collapsed?'collapsed':''#)" level="(#=level#)">
+	    <td class="gdfCell indentCell" style="padding-left:(#=obj.level*10+18#)px;">
+	      <div class="exp-controller" align="center"></div>
+	      (#=obj.name#)
+	    </td>
+	    {% if aDescription['attr_add_info1']!='' %}
+	        <td class="gdfCell">(#=obj.info1#)</td>
+	    {% endif %}
+	    {% if aDescription['attr_add_info2']!='' %}
+	        <td class="gdfCell">(#=obj.info2#)</td>
+	    {% endif %}
+	    <td class="gdfCell"><input type="text" name="start"  value="" class="date"></td>
+	    <td class="gdfCell"><input type="text" name="end" value="" class="date"></td>
+	    <td class="gdfCell"><input type="text" name="progress" class="validated" entrytype="PERCENTILE" autocomplete="off" value="(#=obj.progress?obj.progress:''#)" (#=obj.progressByWorklog?"readOnly":""#)></td>
+	    {% if aDescription['attr_add_info1']=='' %}
+	    	    <td class="gdfCell"></td>
+	     {% endif %}
+	    {% if aDescription['attr_add_info2']=='' %}
+	    	    <td class="gdfCell"></td>
+	     {% endif %}
+	    <td class="gdfCell"></td>
+
+	  </tr>
+	  --></div>
+
+		<div class="__template__" type="TASKBAR"><!--
+	  <div class="taskBox taskBoxDiv" taskId="(#=obj.id#)" >
+	    <div class="layout (#=obj.hasExternalDep?'extDep':''#)">
+	      <div class="taskStatus" status="(#=obj.status#)"></div>
+	      <div class="taskProgress" style="width:(#=obj.progress>100?100:obj.progress#)%; background-color:(#=obj.progress>100?'red':'rgb(153,255,51);'#);"></div>
+	      <div class="taskLabel"></div>
+	    </div>
+	  </div>
+	  --></div>
+
+
+	</div>
+</div>

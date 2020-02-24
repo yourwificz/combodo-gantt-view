@@ -1,0 +1,46 @@
+/*!
+ * Copyright (C) 2013-2020 Combodo SARL
+ *
+ * This file is part of iTop.
+ *
+ * iTop is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * iTop is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ */
+@import 'css-variables.scss';
+
+
+/* Note: Most of the style has been duplicated from iTop 2.5 search as the extension must be compatible with iTop 2.3 */
+#dashlet_properties {
+	.resEdit {
+		padding: 15px;
+	}
+
+	.resLine {
+		width: 95%;
+		padding: 3px;
+		margin: 5px;
+		border: 1px solid #d0d0d0;
+	}
+
+	body {
+		overflow: hidden;
+	}
+
+	.ganttButtonBar h1{
+		color: #000000;
+		font-weight: bold;
+		font-size: 28px;
+		margin-left: 10px;
+	}
+}
+
+

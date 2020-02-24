@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<itop_design xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.0">
+	<meta>
+		<dashlets>
+			<dashlet id="GanttDashlet" _delta="define">
+				<label>Gantt View</label>
+				<icon>combodo-gantt-view/asset/img/gantt-dashlet.png</icon>
+				<description>Displays elements inside a gantt</description>
+				<configuration />
+			</dashlet>
+		</dashlets>
+	</meta>
+</itop_design>

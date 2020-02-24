@@ -1,0 +1,270 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE"/>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<title>Test Gantt</title>
+<link rel=stylesheet href="asset/lib/jQueryGantt/platform.css" type="text/css">
+<link rel=stylesheet href="asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.css" type="text/css">
+
+<link rel=stylesheet href="asset/lib/jQueryGantt/gantt.css" type="text/css">
+<link rel=stylesheet href="asset/lib/jQueryGantt/ganttPrint.css" type="text/css" media="print">
+<link rel=stylesheet href="asset/lib/jQueryGantt/libs/jquery/valueSlider/mb.slider.css" type="text/css" media="print">
+
+<script src="../../js/jquery.min.js"/>
+<script src="../../js/jquery-ui-1.11.4.custom.min.js"/>
+
+<script src="asset/lib/jQueryGantt/libs/jquery/jquery.livequery.1.1.1.min.js"></script>
+<script src="asset/lib/jQueryGantt/libs/jquery/jquery.timers.js"></script>
+
+<script src="asset/lib/jQueryGantt/libs/utilities.js"></script>
+<script src="asset/lib/jQueryGantt/libs/forms.js"></script>
+<script src="asset/lib/jQueryGantt/libs/date.js"></script>
+<script src="asset/lib/jQueryGantt/libs/dialogs.js"></script>
+<script src="asset/lib/jQueryGantt/libs/layout.js"></script>
+<script src="asset/lib/jQueryGantt/libs/i18nJs.js"></script>
+
+<script src="asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.js"></script>
+<script src="asset/lib/jQueryGantt/libs/jquery/JST/jquery.JST.js"></script>
+<script src="asset/lib/jQueryGantt/libs/jquery/valueSlider/jquery.mb.slider.js"></script>
+
+<script type="text/javascript" src="asset/lib/jQueryGantt/libs/jquery/svg/jquery.svg.min.js"></script>
+<script type="text/javascript" src="asset/lib/jQueryGantt/libs/jquery/svg/jquery.svgdom.1.8.js"></script>
+
+
+<script src="asset/lib/jQueryGantt/ganttUtilities.js"></script>
+<script src="asset/lib/jQueryGantt/ganttTask.js"></script>
+<script src="asset/lib/jQueryGantt/ganttDrawerSVG.js"></script>
+<script src="asset/lib/jQueryGantt/ganttZoom.js"></script>
+<script src="asset/lib/jQueryGantt/ganttGridEditor.js"></script>
+<script src="asset/lib/jQueryGantt/ganttMaster.js"></script>
+
+
+<!--<script src="libs/profiling.js"></script>-->
+<!--<script type="text/javascript" src="ganttTestSuite.js"></script>-->
+</head>
+<body style="background-color: #fff;">
+
+<div id="workSpace" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px"></div>
+
+
+
+<form id="gimmeBack" style="display:none;" action="../gimmeBack.jsp" method="post" target="_blank"><input type="hidden" name="prj" id="gimBaPrj"></form>
+
+<script type="text/javascript">
+
+var ge;
+$(function() {
+    console.warn('ini');
+    var canWrite=true; //this is the default for test purposes
+
+    // here starts gantt initialization
+    console.warn('new GanttMaster');
+    ge = new GanttMaster();
+    ge.set100OnClose=true;
+
+    ge.shrinkParent=true;
+
+    ge.init($("#workSpace"));
+    loadI18n(); //overwrite with localized ones
+
+    //in order to force compute the best-fitting zoom level
+    delete ge.gantt.zoom;
+
+    var project=loadGanttFromServer(0,alert);
+
+});
+
+function loadGanttFromServer(taskId, callback) {
+    console.warn('loadGanttFromServer');
+    $.post('http://localhost/itopextension/iTop/extensions/combodo-gantt-view/ajax.php?operation=GetProject',
+        null,null,'json')
+        .done(function(data){
+            ret=data;
+
+		ge.loadProject(ret);
+		ge.checkpoint(); //empty the undo stack
+	});
+    return ret;
+}
+
+
+function saveGanttOnServer() {
+
+    //this is a simulation: save data to the local storage or to the textarea
+
+    /*
+	var prj = ge.saveProject();
+
+	delete prj.resources;
+	delete prj.roles;
+
+	var prof = new Profiler("saveServerSide");
+	prof.reset();
+
+	if (ge.deletedTaskIds.length>0) {
+	  if (!confirm("TASK_THAT_WILL_BE_REMOVED\n"+ge.deletedTaskIds.length)) {
+		return;
+	  }
+	}
+
+	$.ajax("ganttAjaxController.jsp", {
+	  dataType:"json",
+	  data: {CM:"SVPROJECT",prj:JSON.stringify(prj)},
+	  type:"POST",
+
+	  success: function(response) {
+		if (response.ok) {
+		  prof.stop();
+		  if (response.project) {
+			ge.loadProject(response.project); //must reload as "tmp_" ids are now the good ones
+		  } else {
+			ge.reset();
+		  }
+		} else {
+		  var errMsg="Errors saving project\n";
+		  if (response.message) {
+			errMsg=errMsg+response.message+"\n";
+		  }
+
+		  if (response.errorMessages.length) {
+			errMsg += response.errorMessages.join("\n");
+		  }
+
+		  alert(errMsg);
+		}
+	  }
+
+	});
+	*/
+}
+
+//-------------------------------------------  Get project file as JSON (used for migrate project from gantt to Teamwork) ------------------------------------------------------
+function getFile() {
+    $("#gimBaPrj").val(JSON.stringify(ge.saveProject()));
+    $("#gimmeBack").submit();
+    $("#gimBaPrj").val("");
+
+    /*  var uriContent = "data:text/html;charset=utf-8," + encodeURIComponent(JSON.stringify(prj));
+	 neww=window.open(uriContent,"dl");*/
+}
+
+function showBaselineInfo (event,element){
+    //alert(element.attr("data-label"));
+    $(element).showBalloon(event, $(element).attr("data-label"));
+    ge.splitter.secondBox.one("scroll",function(){
+        $(element).hideBalloon();
+    })
+}
+
+</script>
+
+
+
+
+
+<div id="gantEditorTemplates" style="display:none;">
+	<div class="__template__" type="GANTBUTTONS"><!--
+  <div class="ganttButtonBar noprint">
+    <div class="buttons">
+
+      <button onclick="$('#workSpace').trigger('expandAll.gantt');return false;" class="button textual icon " title="EXPAND_ALL"><span class="teamworkIcon">6</span></button>
+      <button onclick="$('#workSpace').trigger('collapseAll.gantt'); return false;" class="button textual icon " title="COLLAPSE_ALL"><span class="teamworkIcon">5</span></button>
+
+    <span class="ganttButtonSeparator"></span>
+      <button onclick="$('#workSpace').trigger('zoomMinus.gantt'); return false;" class="button textual icon " title="zoom out"><span class="teamworkIcon">)</span></button>
+      <button onclick="$('#workSpace').trigger('zoomPlus.gantt');return false;" class="button textual icon " title="zoom in"><span class="teamworkIcon">(</span></button>
+   <span class="ganttButtonSeparator"></span>
+      <button onclick="ge.gantt.showCriticalPath=!ge.gantt.showCriticalPath; ge.redraw();return false;" class="button textual icon requireCanSeeCriticalPath" title="CRITICAL_PATH"><span class="teamworkIcon">&pound;</span></button>
+    <span class="ganttButtonSeparator requireCanSeeCriticalPath"></span>
+      <button onclick="ge.splitter.resize(.1);return false;" class="button textual icon" ><span class="teamworkIcon">F</span></button>
+      <button onclick="ge.splitter.resize(50);return false;" class="button textual icon" ><span class="teamworkIcon">O</span></button>
+      <button onclick="ge.splitter.resize(100);return false;" class="button textual icon"><span class="teamworkIcon">R</span></button>
+      <span class="ganttButtonSeparator"></span>
+      <button onclick="$('#workSpace').trigger('fullScreen.gantt');return false;" class="button textual icon" title="FULLSCREEN" id="fullscrbtn"><span class="teamworkIcon">@</span></button>
+      <button onclick="ge.element.toggleClass('colorByStatus' );return false;" class="button textual icon"><span class="teamworkIcon">&sect;</span></button>
+
+      &nbsp; &nbsp; &nbsp; &nbsp;
+    <button onclick="saveGanttOnServer();" class="button first big requireWrite" title="Save">Save</button>
+    </div></div>
+  --></div>
+
+	<!--table with 8 columns minimum-->
+	<div class="__template__" type="TASKSEDITHEAD"><!--
+  <table class="gdfTable" cellspacing="0" cellpadding="0">
+    <thead>
+    <tr style="height:40px">
+
+      <th class="gdfColHeader gdfResizable" style="width:300px;">name</th>
+      <th class="gdfColHeader gdfResizable" style="width:100px;">bla1</th>
+      <th class="gdfColHeader gdfResizable" style="width:100px;">bla2</th>
+      <th class="gdfColHeader gdfResizable" style="width:80px;">start</th>
+      <th class="gdfColHeader gdfResizable" style="width:80px;">End</th>
+      <th class="gdfColHeader gdfResizable" style="width:50px;">dur.</th>
+      <th class="gdfColHeader gdfResizable" style="width:20px;">%</th>
+      <th class="gdfColHeader gdfResizable" style="width:1000px; text-align: left; padding-left: 10px;"></th>
+    </tr>
+    </thead>
+  </table>
+  --></div>
+
+	<div class="__template__" type="TASKROW"><!--
+  <tr id="tid_(#=obj.id#)" taskId="(#=obj.id#)" class="taskEditRow (#=obj.isParent()?'isParent':''#) (#=obj.collapsed?'collapsed':''#)" level="(#=level#)">
+    <td class="gdfCell indentCell" style="padding-left:(#=obj.level*10+18#)px;">
+      <div class="exp-controller" align="center"></div>
+      (#=obj.name#)
+    </td>
+    <td class="gdfCell">(#=obj.getAssigsString()#)</td>
+    <td class="gdfCell">(#=obj.getAssigsString()#)</td>
+    <td class="gdfCell"><input type="text" name="start"  value="" class="date"></td>
+    <td class="gdfCell"><input type="text" name="end" value="" class="date"></td>
+    <td class="gdfCell"><input type="text" name="duration" autocomplete="off" value="(#=obj.duration#)"></td>
+    <td class="gdfCell"><input type="text" name="progress" class="validated" entrytype="PERCENTILE" autocomplete="off" value="(#=obj.progress?obj.progress:''#)" (#=obj.progressByWorklog?"readOnly":""#)></td>
+
+    <td class="gdfCell"></td>
+  </tr>
+  --></div>
+
+	<div class="__template__" type="TASKBAR"><!--
+  <div class="taskBox taskBoxDiv" taskId="(#=obj.id#)" >
+    <div class="layout (#=obj.hasExternalDep?'extDep':''#)">
+      <div class="taskStatus" status="(#=obj.status#)"></div>
+      <div class="taskProgress" style="width:(#=obj.progress>100?100:obj.progress#)%; background-color:(#=obj.progress>100?'red':'rgb(153,255,51);'#);"></div>
+      <div class="taskLabel"></div>
+    </div>
+  </div>
+  --></div>
+
+
+</div>
+<script type="text/javascript">
+function loadI18n(){
+    GanttMaster.messages = {
+        "CANNOT_WRITE":"No permission to change the following task:",
+        "CHANGE_OUT_OF_SCOPE":"Project update not possible as you lack rights for updating a parent project.",
+        "TASK_HAS_CONSTRAINTS":"Task has constraints.",
+        "GANTT_ERROR_DEPENDS_ON_OPEN_TASK":"Error: there is a dependency on an open task.",
+        "GANTT_ERROR_DESCENDANT_OF_CLOSED_TASK":"Error: due to a descendant of a closed task.",
+        "TASK_HAS_EXTERNAL_DEPS":"This task has external dependencies.",
+        "GANNT_ERROR_LOADING_DATA_TASK_REMOVED":"GANNT_ERROR_LOADING_DATA_TASK_REMOVED",
+        "CIRCULAR_REFERENCE":"Circular reference.",
+        "CANNOT_DEPENDS_ON_ANCESTORS":"Cannot depend on ancestors.",
+        "INVALID_DATE_FORMAT":"The data inserted are invalid for the field format.",
+        "GANTT_ERROR_LOADING_DATA_TASK_REMOVED":"An error has occurred while loading the data. A task has been trashed.",
+        "CANNOT_CLOSE_TASK_IF_OPEN_ISSUE":"Cannot close a task with open issues",
+        "TASK_MOVE_INCONSISTENT_LEVEL":"You cannot exchange tasks of different depth.",
+        "CANNOT_MOVE_TASK":"CANNOT_MOVE_TASK",
+        "PLEASE_SAVE_PROJECT":"PLEASE_SAVE_PROJECT",
+        "GANTT_SEMESTER":"Semester",
+        "GANTT_SEMESTER_SHORT":"s.",
+        "GANTT_QUARTER":"Quarter",
+        "GANTT_QUARTER_SHORT":"q.",
+        "GANTT_WEEK":"Week",
+        "GANTT_WEEK_SHORT":"w."
+    };
+}
+
+</script>
+
+</body>
+</html>
