@@ -20,7 +20,6 @@ These are some key features:
 * print friendly
 * collapsible branches
 * critical path
-* milestones, progress etc.
 * zoom
 
 Try the online working demo here: https://gantt.twproject.com

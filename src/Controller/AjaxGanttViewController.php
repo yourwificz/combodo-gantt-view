@@ -15,7 +15,7 @@ class AjaxGanttViewController extends AbstractGanttViewController
 		$oGantt=new Gantt($aScope);
 		$aParams = array();
 		$aParams['tasks'] =  $oGantt->GetGanttValues();//$oGantt->GetGanttValuesTest();
-		$aParams['selectedRow'] = 2;
+		$aParams['selectedRow'] = 0;
 		$aParams['deletedTaskIds'] = array();
 		$aParams['resources'] = array();
 		$aParams['roles'] = array();

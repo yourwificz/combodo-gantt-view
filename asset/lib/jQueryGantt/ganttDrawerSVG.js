@@ -441,7 +441,7 @@ Ganttalendar.prototype.drawTask = function (task) {
     }
 
     //task label
-    svg.text(taskSvg, "100%", 18, task.name, {class:"taskLabelSVG", transform:"translate(20,-5)"});
+    svg.text(taskSvg, "100%", 18, task.errorMessage+task.name, {class:"taskLabelSVG", transform:"translate(20,-5)"});
 
     //link tool
     if (task.level>0){

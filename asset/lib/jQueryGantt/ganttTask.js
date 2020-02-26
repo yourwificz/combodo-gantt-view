@@ -72,7 +72,7 @@ function Task(id, name, code, level, start, end, duration, collapsed) {
   this.rowElement; //row editor html element
   this.ganttElement; //gantt html element
   this.master;
-
+  this.errorMessage="";
 
   this.assigs = [];
 }
@@ -154,28 +154,30 @@ Task.prototype.setPeriod = function (start, end) {
 
   //cannot start after end
   if (start > end) {
-    start = end;
+  	 start = end;
   }
 
   //if there are dependencies compute the start date and eventually moveTo
   var startBySuperiors = this.computeStartBySuperiors(start);
   if (startBySuperiors != start) {
+  	this.status="STATUS_FAILED";
+	  this.errorMessage="!! START DATE AUTOMATICALY MODIFIED !! ";
     return this.moveTo(startBySuperiors, false,true);
   }
 
   var somethingChanged = false;
 
   if (this.start != start || this.start != wantedStartMillis) {
-    this.start = start;
-    somethingChanged = true;
+  	 this.start = start;
+	 somethingChanged = true;
   }
 
   //set end
   var wantedEndMillis = end;
 
   if (this.end != end || this.end != wantedEndMillis) {
-    this.end = end;
-    somethingChanged = true;
+  	 this.end = end;
+	 somethingChanged = true;
   }
 
   this.duration = recomputeDuration(this.start, this.end);

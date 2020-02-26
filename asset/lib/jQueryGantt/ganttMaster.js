@@ -78,7 +78,7 @@ function GanttMaster() {
 
   this.currentTask; // task currently selected;
 
-  this.resourceUrl = "res/"; // URL to resources (images etc.)
+  this.resourceUrl = "asset/lib/jQueryGantt/res/"; // URL to resources (images etc.)
   this.__currentTransaction;  // a transaction object holds previous state during changes
   this.__undoStack = [];
   this.__redoStack = [];
@@ -88,7 +88,6 @@ function GanttMaster() {
 
   var self = this;
 }
-
 
 GanttMaster.prototype.init = function (workSpace) {
   var place=$("<div>").prop("id","TWGanttArea").css( {padding:0, "overflow-y":"auto", "overflow-x":"hidden","border":"1px solid #e5e5e5",position:"relative"});
@@ -506,7 +505,8 @@ GanttMaster.prototype.loadTasks = function (tasks, selectedRow) {
   for (var i = 0; i < tasks.length; i++) {
     var task = tasks[i];
     if (!(task instanceof Task)) {
-      var t = factory.build(task.id, task.name, task.code, task.level, task.start, task.duration, task.collapsed);
+      var calculated_duration=recomputeDuration(task.start, task.end);
+      var t = factory.build(task.id, task.name, task.code, task.level, task.start, calculated_duration, task.collapsed);
       for (var key in task) {
         if (key != "end" && key != "start")
           t[key] = task[key]; //copy all properties

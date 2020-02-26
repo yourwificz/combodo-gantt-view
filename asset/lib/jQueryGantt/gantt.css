@@ -1,8 +1,4 @@
 
-body{
-  /*overflow: hidden;*/
-}
-
 .TWGanttWorkSpace.ganttFullScreen{
   position: fixed;
   top:0;
@@ -90,6 +86,7 @@ body{
 .splitterContainer {
   width: 100%;
   height: 100%;
+  min-height: 100px;
 }
 
 .splitBox1{
@@ -368,7 +365,7 @@ body{
 }
 
 .taskBoxDiv .layout.extDep{
-  background-image:url(res/hasExternalDeps.png);
+  background-image:url("res/hasExternalDeps.png");
 }
 
 
@@ -524,19 +521,16 @@ select.taskStatus{
 }
 
 .isParent .exp-controller{
-  background-image: url(res/toggle_collapse.png);
+  background-image: url("res/toggle_collapse.png");
 }
 
 .isParent.collapsed .exp-controller{
   cursor: pointer;
-  background-image: url(res/toggle-expand.png);
+  background-image: url("res/toggle-expand.png");
 }
 
 .ui-resizable-helper { border: 1px dotted #00F;  }
 .ui-resizable-e, .ui-resizable-w {width: 5px;}
-.ui-draggable{
-  cursor:move;
-}
 
 /*--------------------------------------------------- SVG --------------------------------------------------*/
 .ganttSVGBox{

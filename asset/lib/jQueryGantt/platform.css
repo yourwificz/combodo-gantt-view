@@ -1,3 +1,7 @@
+.ganttButtonBar h1,.ganttButtonBar div {
+	display: inline;
+}
+
 @font-face {
   font-family: 'TeamworkRegular';
   src: url('res/icons.eot?5qjga5');
@@ -5,75 +9,6 @@
   url('res/icons.woff?5qjga5') format('woff'),
   url('res/icons.ttf?5qjga5') format('truetype'),
   url('res/icons.svg?5qjga5#icons') format('svg');
-  font-weight: normal !important;
-  font-style: normal;
-}
-
-* {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -o-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
-/*
--------------------------------------------------------
-body styles
--------------------------------------------------------
-*/
-BODY, TBODY {
-  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-  /*font-family: 'Open Sans', sans-serif;*/
-  font-size: 14px;
-  margin: 0;
-  color: #1e2f41;
-  text-decoration: none;
-}
-
-a {
-  text-decoration: none;
-  font-weight: bold;
-  /*color: #16ABDD;*/
-  color: #2b9af3;
-  text-rendering: optimizelegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-font-smoothing: antialiased;
-
-}
-
-a:hover, a.aHover {
-  color: #0C85AD;
-  color: #2575be;
-  text-decoration: underline;
-}
-
-h1 {
-  font-size: 32px;
-  line-height: 34px;
-  color: #91B4B7;
-  font-weight: normal;
-  margin: 0 0 10px 0
-}
-
-h2 {
-  font-size: 28px;
-  color: #34495e;
-  font-weight: normal;
-  margin: 0 0 10px 0
-}
-
-h3 {
-  text-decoration: none;
-  color: #1e2f41;
-  font-size: 16px;
-  margin: 0;
-}
-
-h4 {
-  font-size: 16px;
-  padding: 5px 0;
-  color: #617777;
-  margin: 0
 }
 
 #savingMessage {

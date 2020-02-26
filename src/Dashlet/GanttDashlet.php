@@ -25,6 +25,7 @@
 class GanttDashlet extends Dashlet
 {
 	protected $iLevelCount;
+
 	/**
 	 * GanttDashlet constructor.
 	 *
@@ -42,30 +43,45 @@ class GanttDashlet extends Dashlet
 		{
 			$this->aProperties['title'] = Dict::S('GanttDashlet:Prop-Title:Default');
 			$this->aProperties['oql'] = 'SELECT UserRequest';
+			$this->aProperties['class_0'] = 'UserRequest';
 			$this->aProperties['depends_on'] = 'related_request_list';
 			$this->aProperties['label_0'] = 'title';
 			$this->aProperties['start_date_0'] = 'start_date';
 			$this->aProperties['end_date_0'] = 'end_date';
-			$this->aProperties['additional_info1_0'] = '';
-			$this->aProperties['additional_info2_0'] = '';
-			$this->aProperties['percentage_0'] = '';
-			$this->aProperties['parent_0'] = '';
 		}
 		else
 		{
 			$this->aProperties['title'] = Dict::S('GanttDashlet:Prop-Title:Default2');
 			$this->aProperties['oql'] = 'SELECT Contact ';
+			$this->aProperties['class_0'] = 'Contact';
 			$this->aProperties['depends_on'] = '';
 			$this->aProperties['label_0'] = '';
 			$this->aProperties['start_date_0'] = '';
 			$this->aProperties['end_date_0'] = '';
-			$this->aProperties['additional_info1_0'] = '';
-			$this->aProperties['additional_info2_0'] = '';
-			$this->aProperties['percentage_0'] = '';
-			$this->aProperties['parent_0'] = '';
 		}
+		$this->aProperties['additional_info1_0'] = '';
+		$this->aProperties['additional_info2_0'] = '';
+		$this->aProperties['percentage_0'] = '';
+		$this->aProperties['parent_0'] = '';
+		$this->aProperties['class_1'] = '';
+		$this->aProperties['label_1'] = '';
+		$this->aProperties['start_date_1'] = '';
+		$this->aProperties['end_date_1'] = '';
+		$this->aProperties['additional_info1_1'] = '';
+		$this->aProperties['additional_info2_1'] = '';
+		$this->aProperties['percentage_1'] = '';
+		$this->aProperties['parent_1'] = '';
+		$this->aProperties['class_2'] = '';
+		$this->aProperties['label_2'] = '';
+		$this->aProperties['start_date_2'] = '';
+		$this->aProperties['end_date_2'] = '';
+		$this->aProperties['additional_info1_2'] = '';
+		$this->aProperties['additional_info2_2'] = '';
+		$this->aProperties['percentage_2'] = '';
+		$this->aProperties['parent_2'] = '';
 	}
-		/**
+
+	/**
 	 * @inheritdoc
 	 * @throws \OQLException
 	 */
@@ -78,7 +94,7 @@ class GanttDashlet extends Dashlet
 			'depends_on' => $this->aProperties['depends_on'],
 
 		);
-		$aScope = array_merge($aScope,$this->addFieldsToScope(0));
+		$aScope = array_merge($aScope, $this->addFieldsToScope(0));
 
 		$oView = new Gantt($aScope, $bEditMode);
 		$sViewId = 'gantt_'.$this->sId.($bEditMode ? '_edit' : ''); // make a unique id (edition occuring in the same DOM)
@@ -97,16 +113,26 @@ class GanttDashlet extends Dashlet
 			'start_date' => $this->aProperties['start_date_'.$idx],
 			'end_date' => $this->aProperties['end_date_'.$idx],
 			'additional_info1' => $this->aProperties['additional_info1_'.$idx],
-			'additional_info2'=> $this->aProperties['additional_info2_'.$idx],
-			'percentage'=> $this->aProperties['percentage_'.$idx],
-			'parent'=> $this->aProperties['parent_'.$idx],
+			'additional_info2' => $this->aProperties['additional_info2_'.$idx],
+			'percentage' => $this->aProperties['percentage_'.$idx],
+			'parent' => $this->aProperties['parent_'.$idx],
+			'class' => $this->aProperties['class_'.$idx],
 		);
 		if ($this->aProperties['parent_'.$idx])
 		{
-			$aScope['parent_fields']=addFieldsToScope($idx+1);
+			try
+			{
+				$aScope['parent_fields'] = $this->addFieldsToScope($idx + 1);
+			}
+			catch (Exception $e)
+			{
+				$aScope['parent_fields'] = array();
+			}
 		}
+
 		return $aScope;
 	}
+
 	/**
 	 * @inheritdoc
 	 * @throws \Exception
@@ -130,13 +156,13 @@ class GanttDashlet extends Dashlet
 		{
 			$oQuery = $this->oModelReflection->GetQuery($this->aProperties['oql']);
 			$sClass = $oQuery->GetClass();
-			$aLink = $this->GetOptions($sClass, false,false,  true);
+			$aLink = $this->GetOptions($sClass, false, false, true);
 		}
 		catch (Exception $e)
 		{
 			$oQuery = null;
 			$sClass = null;
-			$aLink= null;
+			$aLink = null;
 		}
 
 		//depends_on
@@ -152,127 +178,74 @@ class GanttDashlet extends Dashlet
 		}
 		$oForm->AddField($oField);
 
-		$idx=0;
-		while ($sClass != null)
+		$idx = 0;
+		while ($idx < 2)
 		{
 			$aDateOption = null;
 			$aField = null;
+			$aLinkParent = null;
+			$aNumberField = null;
 			try
 			{
-				$aDateOption = $this->GetOptions($sClass, true,false,  false, false);
+				$aDateOption = $this->GetOptions($sClass, true, false, false, false);
 				$aField = $this->GetOptions($sClass, false, false, false, false);
-				$aLinkParent = $this->GetOptions($sClass, false,false,  false, false, true);
+				$aLinkParent = $this->GetOptions($sClass, false, false, false, false, true);
+				$aNumberField = $this->GetOptions($sClass, false, true);
 			}
 			catch (Exception $e)
 			{
 				$aDateOption = null;
 				$aField = null;
 				$aLinkParent = null;
+				$aNumberField = null;
 			}
-			if ($idx!=0)
+			if ($idx != 0)
 			{
-				$oField = new DesignerTextField(Dict::S('GanttDashlet/Prop:ParentInformations'), Dict::S('GanttDashlet/Prop:ParentInformations'), '');
-				$oField->SetReadOnly();
-				$oForm->AddField($oField);
+				if ( $sClass != null)
+				{
+					$oForm->StartFieldSet(Dict::Format('GanttDashlet/Prop:ParentInformations', ($idx)));
+					$oField = new DesignerTextField('class_'.$idx, '', $sClass);
+					$oField->SetReadOnly();
+					$oForm->AddField($oField);
+				}
+				else
+				{
+					$oField = new DesignerHiddenField('class_'.$idx, '', $sClass);
+					$oForm->AddField($oField);
+				}
 			}
 			//label
-			if ($aField != null)
-			{
-				$oField = new DesignerComboField('label', Dict::S('Class:Query/Attribute:name'), $this->aProperties['label_'.$idx]);
-				$oField->SetMandatory();
-				$oField->SetAllowedValues($aField);
-			}
-			else
-			{
-				$oField = new DesignerTextField('label', Dict::S('Class:Query/Attribute:name'), $this->aProperties['label_'.$idx]);
-				$oField->SetReadOnly();
-			}
-			$oForm->AddField($oField);
+			$oForm->AddField($this->DisplayDesignerComboField('label_'.$idx, Dict::S('Class:Query/Attribute:name'),
+				$this->aProperties['label_'.$idx], $aField, ($sClass != null), true));
 
 			//start date
-			if ($aDateOption != null)
-			{
-				$oField = new DesignerComboField('start_date', Dict::S('GanttDashlet/Prop:StartDate'), $this->aProperties['start_date_'.$idx]);
-				$oField->SetMandatory();
-				$oField->SetAllowedValues($aDateOption);
-			}
-			else
-			{
-				$oField = new DesignerTextField('start_date', Dict::S('GanttDashlet/Prop:StartDate'), $this->aProperties['start_date_'.$idx]);
-				$oField->SetReadOnly();
-			}
-			$oForm->AddField($oField);
+			$oForm->AddField($this->DisplayDesignerComboField('start_date_'.$idx, Dict::S('GanttDashlet/Prop:StartDate'),
+				$this->aProperties['start_date_'.$idx], $aDateOption, ($sClass != null), true));
 
 			//end date
-			if ($aDateOption != null)
-			{
-				$oField = new DesignerComboField('end_date', Dict::S('GanttDashlet/Prop:EndDate'), $this->aProperties['end_date_'.$idx]);
-				$oField->SetMandatory();
-				$oField->SetAllowedValues($aDateOption);
-			}
-			else
-			{
-				$oField = new DesignerTextField('end_date', Dict::S('GanttDashlet/Prop:EndDate'), $this->aProperties['end_date_'.$idx]);
-				$oField->SetReadOnly();
-			}
-			$oForm->AddField($oField);
+			$oForm->AddField($this->DisplayDesignerComboField('end_date_'.$idx, Dict::S('GanttDashlet/Prop:EndDate'),
+				$this->aProperties['end_date_'.$idx], $aDateOption, ($sClass != null), true));
 
 			//percentage
-			if ($aField != null)
-			{
-				$oField = new DesignerComboField('pourcentage', Dict::S('GanttDashlet/Prop:Percentage'), $this->aProperties['percentage_'.$idx]);
-				$aNumberField = $this->GetOptions($sClass, false,true);
-				$oField->SetAllowedValues($aNumberField);
-			}
-			else
-			{
-				$oField = new DesignerTextField('pourcentage', Dict::S('GanttDashlet/Prop:Percentage'), $this->aProperties['percentage_'.$idx]);
-				$oField->SetReadOnly();
-			}
-			$oForm->AddField($oField);
+			$oForm->AddField($this->DisplayDesignerComboField('percentage_'.$idx, Dict::S('GanttDashlet/Prop:Percentage'),
+				$this->aProperties['percentage_'.$idx], $aNumberField, ($sClass != null), false));
+
 			//additional_info
-			if ($aField != null)
-			{
-				$oField = new DesignerComboField('additional_info1', Dict::Format('GanttDashlet/Prop:AdditionalInfoLeft'),
-					$this->aProperties['additional_info1_'.$idx]);
-				$oField->SetAllowedValues($aField);
-			}
-			else
-			{
-				$oField = new DesignerTextField('additional_info1', Dict::Format('GanttDashlet/Prop:AdditionalInfoLeft'),
-					$this->aProperties['additional_info1_'.$idx]);
-				$oField->SetReadOnly();
-			}
-			$oForm->AddField($oField);
+			$oForm->AddField($this->DisplayDesignerComboField('additional_info1_'.$idx,
+				Dict::Format('GanttDashlet/Prop:AdditionalInfoLeft'),
+				$this->aProperties['additional_info1_'.$idx], $aField, ($sClass != null), false));
 
 			//additional_info2
-			if ($aField != null)
-			{
-				$oField = new DesignerComboField('additional_info2', Dict::Format('GanttDashlet/Prop:AdditionalInfoRight'),
-					$this->aProperties['additional_info2_'.$idx]);
-				$oField->SetAllowedValues($aField);
-			}
-			else
-			{
-				$oField = new DesignerTextField('additional_info2', Dict::Format('GanttDashlet/Prop:AdditionalInfoRight'),
-					$this->aProperties['additional_info2_'.$idx]);
-				$oField->SetReadOnly();
-			}
-			$oForm->AddField($oField);
+			$oForm->AddField($this->DisplayDesignerComboField('additional_info2_'.$idx,
+				Dict::Format('GanttDashlet/Prop:AdditionalInfoRight'),
+				$this->aProperties['additional_info2_'.$idx], $aField, ($sClass != null), false));
+
 
 			//parent item
-			if ($aLinkParent != null)
-			{
-				$oField = new DesignerComboField('parent', Dict::S('GanttDashlet/Prop:ParentField'), $this->aProperties['parent_'.$idx]);
-				$oField->SetAllowedValues($aLinkParent);
-			}
-			else
-			{
-				$oField = new DesignerTextField('parent', Dict::S('GanttDashlet/Prop:ParentField'), $this->aProperties['parent_'.$idx]);
-				$oField->SetReadOnly();
-			}
-			$oForm->AddField($oField);
-			if($this->aProperties['parent_'.$idx]!='')
+			$oForm->AddField($this->DisplayDesignerComboField('parent_'.$idx, Dict::S('GanttDashlet/Prop:ParentField'),
+				$this->aProperties['parent_'.$idx], $aLinkParent, ($sClass != null), false));
+
+			if ($this->aProperties['parent_'.$idx] != '')
 			{
 				try
 				{
@@ -289,6 +262,33 @@ class GanttDashlet extends Dashlet
 			}
 			$idx++;
 		}
+	}
+
+	private function DisplayDesignerComboField($sName, $sLabel, $sValue, $aAllowedValues, $bDisplay, $bMandatory)
+	{
+		$oField = null;
+		if($bDisplay)
+		{
+			$oField = new DesignerComboField($sName, $sLabel, $sValue);
+			if ($aAllowedValues != null)
+			{
+				$oField->SetAllowedValues($aAllowedValues);
+				$oField->SetDisplayed($bDisplay);
+				if ($bMandatory && $bDisplay)
+				{
+					$oField->SetMandatory();
+				}
+			}
+			else
+			{
+				$oField->SetDisplayed(false);
+			}
+		}
+		else{
+			$oField=new DesignerHiddenField($sName, '',$sValue);
+		}
+
+		return $oField;
 	}
 
 	public function Update($aValues, $aUpdatedFields)
@@ -318,6 +318,13 @@ class GanttDashlet extends Dashlet
 				$this->bFormRedrawNeeded = true;
 			}
 		}
+		if (in_array('parent_0', $aUpdatedFields))
+		{
+			//redraw
+			$this->bFormRedrawNeeded = true;
+			array_push($aUpdatedFields,'class_1');
+		}
+
 		return parent::Update($aValues, $aUpdatedFields);
 	}
 
@@ -375,9 +382,9 @@ class GanttDashlet extends Dashlet
 						continue;
 					}
 				}
-				elseif($isLinkParent)
+				elseif ($isLinkParent)
 				{
-					if ( !is_a($sAttType, 'AttributeExternalKey', true)
+					if (!is_a($sAttType, 'AttributeExternalKey', true)
 						&& !is_a($sAttType, 'AttributeHierarchicalKey', true))
 					{
 						continue;

@@ -68,7 +68,7 @@ class Gantt
 		$this->sParent = $aScope['parent'];
 		if ($this->sParent !='')
 		{
-			$this->aParentFields = ParentFields($aScope['parent_fields']);
+			$this->aParentFields =new ParentFields($aScope['parent_fields']);
 		}
 		$this->aScope=$aScope;
 	}
@@ -106,7 +106,7 @@ class Gantt
 		while ($oRow = $oResultSql->Fetch())
 		{
 			$Level = 0;
-			if ($this->sParent != '' && $oRow->Get($this->sParent) != null)
+			if ( $this->sParent != '' && $oRow->Get($this->sParent) != null)
 			{
 				if (!array_key_exists($oRow->Get($this->sParent), $aLevelParent1))
 				{
@@ -114,20 +114,20 @@ class Gantt
 					$oObj = MetaModel::GetObject($aFieldsParent1->sClass, $oRow->Get($this->sParent), false /* MustBeFound */);
 					if ($oObj != null)
 					{
-						if (!array_key_exists($oObj->Get($aFieldsParent1->sParent), $aLevelParent2))
+						if ($aFieldsParent1->sParent!='' && $oObj->Get($aFieldsParent1->sParent) != '' && !array_key_exists($oObj->Get($aFieldsParent1->sParent), $aLevelParent2))
 						{
 							$aFieldsParent2 = $aFieldsParent1->aParentFields;
 							$oObj = MetaModel::GetObject($aFieldsParent2->sClass, $oRow->Get($aFieldsParent1->sParent),
 								false /* MustBeFound */);
 							if ($oObj != null)
 							{
-								$aDescription[$i] = $this->createRow($oObj, $sClass, $aFieldsParent2, $Level, true);
+								$aDescription[$i] = $this->createRow($oObj, $aFieldsParent2->sClass, $aFieldsParent2, $Level, true);
 								$i++;
 								$aLevelParent2[$oRow->Get($this->sParent)] = $Level;
 								$Level++;
 							}
 						}
-						$aDescription[$i] = $this->createRow($oObj, $sClass, $aFieldsParent1, $Level, true);
+						$aDescription[$i] = $this->createRow($oObj, $aFieldsParent1->sClass, $aFieldsParent1, $Level, true);
 						$i++;
 						$aLevelParent1[$oRow->Get($this->sParent)] = $Level;
 						$Level++;
@@ -150,7 +150,7 @@ class Gantt
 	private function createRow($oRow, $sClass, $aFields, $iLevel, $hasChild=false)
 	{
 		$aRow = array();
-		$aRow['id'] = $sClass.'_'.$oRow->Get("id");
+		$aRow['id'] = $sClass.'_'.$oRow->GetKey();
 		$aRow['name'] = $oRow->Get($aFields->sLabel);
 		if ($aFields->sPercentage != null && $aFields->sPercentage != '')
 		{
@@ -179,8 +179,12 @@ class Gantt
 				$aRow['dependson'] = $oRow->Get($aFields->sDependsOn)->GetColumnAsArray('id');
 			}
 		}
+		else{
+			$aRow['dependson'] = [];
+		}
 		$aRow['canWrite'] = true;
 		$format = "Y-m-d H:i:s";
+
 		$aRow['start'] = date_format(date_create_from_format($format, $oRow->Get($aFields->sStartDate)), 'U') * 1000;
 
 		if ($oRow->Get($aFields->sEndDate) != null)
@@ -241,7 +245,7 @@ class Gantt
 				$newLink = array();
 				foreach ($aRow['dependson'] as $sIdRow)
 				{
-					array_push($newLink, $aLinkedTable[$sIdRow]);
+					array_push($newLink, $aLinkedTable[$sIdRow]+1);
 				}
 				$aRow['depends'] = implode(",", $newLink);
 			}
@@ -340,7 +344,7 @@ class Gantt
 		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttGridEditor.js');
 		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttMaster.js');
 		//render
-		$aData = array('sId' => $sId, 'sTitle' => $this->sTitle, 'bEditMode'=>$this->bEditMode,'sScope'=>json_encode($this->aScope),'aDescription'=>GetGanttDescription());
+		$aData = array('sId' => $sId, 'sTitle' => $this->sTitle, 'bEditMode'=>$this->bEditMode,'sScope'=>json_encode($this->aScope),'aDescription'=>$this->GetGanttDescription());
 		TwigHelper::RenderIntoPage($oP, MODULESROOT.'combodo-gantt-view/view', 'GanttViewer', $aData);
 	}
 
@@ -370,14 +374,15 @@ class Gantt
 
 class ParentFields
 {
-	protected $sLabel;
-	protected $sStartDate;
-	protected $sEndDate;
-	protected $sPercentage;
-	protected $sAdditionalInformation1;
-	protected $sAdditionalInformation2;
-	protected $sParent;
-	protected $aParentFields;
+	public $sClass;
+	public $sLabel;
+	public $sStartDate;
+	public $sEndDate;
+	public $sPercentage;
+	public $sAdditionalInformation1;
+	public $sAdditionalInformation2;
+	public $sParent;
+	public $aParentFields;
 
 	/**
 	 * DependsOnObject constructor.
@@ -397,7 +402,7 @@ class ParentFields
 		$this->sClass = $aScope['class'];
 		if ($aScope['parent'] != null && $aScope['parent'] != '')
 		{
-			$this->aParentFields = ParentFields($aScope['parent_fields']);
+			$this->aParentFields = new ParentFields($aScope['parent_fields']);
 		}
 	}
 
