@@ -299,7 +299,7 @@ class Gantt
 	{
 		//render
 		$aData = array('sId' => $sId, 'sTitle' => $this->sTitle, 'bEditMode'=>$this->bEditMode,'sScope'=>json_encode($this->aScope),'aDescription'=>$this->GetGanttDescription());
-		$oP->add_twig_template(MODULESROOT.'combodo-gantt-view/view', 'GanttViewer', $aData);
+		$oP->add_twig_template(MODULESROOT.'combodo-gantt-view/view', 'GanttViewerDashlet', $aData);
 		//TwigHelper::RenderIntoPage($oP, MODULESROOT.'combodo-gantt-view/view', 'GanttViewer', $aData);
 	}
 

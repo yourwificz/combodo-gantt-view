@@ -1,70 +1,7 @@
 {# @copyright   Copyright (C) 2010-2020 Combodo SARL #}
 {# @license     http://opensource.org/licenses/AGPL-3.0 #}
 
-{% block head %}
-{# @copyright   Copyright (C) 2010-2020 Combodo SARL #}
-{# @license     http://opensource.org/licenses/AGPL-3.0 #}
-
-
-
-var aKBFilesToLoad = [
-
-    // CSS
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/platform.css?v=$sModuleVersion", type: "text" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.css?v=$sModuleVersion", type: "text" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/gantt.css?v=$sModuleVersion", type: "text" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/valueSlider/mb.slider.css?v=$sModuleVersion", type: "text" },
-    // JS
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/jquery.livequery.1.1.1.min.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/jquery.timers.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/utilities.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/forms.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/date.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/dialogs.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/layout.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/i18nJs.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/JST/jquery.JST.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/valueSlider/jquery.mb.slider.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/svg/jquery.svg.min.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/svg/jquery.svgdom.1.8.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/ganttUtilities.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/ganttTask.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/ganttDrawerSVG.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/ganttZoom.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/ganttGridEditor.js?v=$sModuleVersion", type: "script" },
-    { url: "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/ganttMaster.js?v=$sModuleVersion", type: "script" },
-];
-var iKBCurrentIdx = 0;
-var iKBFilesToLoadCount = aKBFilesToLoad.length;
-var fKBLoadScript = function(){
-
-     $.when(
-        $.ajax({
-            url: aKBFilesToLoad[iKBCurrentIdx].url,
-            dataType: aKBFilesToLoad[iKBCurrentIdx].type,
-            cache: true
-        })
-            .done(function(){
-                if ( (aKBFilesToLoad[iKBCurrentIdx].type === 'text') && ($('head link[type="text/css"][href="' + aKBFilesToLoad[iKBCurrentIdx].url + '"]').length === 0) )
-                {
-                    $('<link rel="stylesheet" type="text/css" href="' + aKBFilesToLoad[iKBCurrentIdx].url + '" />').appendTo('head');
-                }
-            })
-    )
-        .then(function(){
-            iKBCurrentIdx++;
-            if (iKBCurrentIdx !== iKBFilesToLoadCount)
-            {
-                fKBLoadScript();
-            }
-             else
-			 {
-				 fKBInitCallback();
-			 }
-        });
-};
-fKBLoadScript();
+{% block loadJS %}{% endblock %}
 
 var ge;
 function fKBInitCallback() {
@@ -103,7 +40,6 @@ function fKBInitCallback() {
 
     loadGanttFromServer(0,alert);
 }
-
 function loadGanttFromServer(taskId, callback) {
     console.warn('loadGanttFromServer');
 //    console.warn('sScope:'+{{sScope|raw}});
@@ -212,5 +148,3 @@ function loadI18n(){
         "GANTT_WEEK_SHORT":"w."
     };
 }
-
-{%  endblock %}

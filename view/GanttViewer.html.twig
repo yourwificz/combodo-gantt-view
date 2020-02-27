@@ -1,21 +1,16 @@
-{# @copyright   Copyright (C) 2010-2019 Combodo SARL #}
+{# @copyright   Copyright (C) 2010-2020 Combodo SARL #}
 {# @license     http://opensource.org/licenses/AGPL-3.0 #}
-<div id="{{sId}}" class="gant-container">
 
-	{% if bEditMode %}
-		<div class="main_header">
-			<h1>{{sTitle}}</h1>
+<div id="{{ sId }}" class="gant-container">
+	{% block head %}
+		<form id="gimmeBack" style="display:none;" action="../gimmeBack.jsp" method="post" target="_blank"><input type="hidden" name="prj" id="gimBaPrj">
+		</form>
+		<div id="workSpace" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px">
 		</div>
-		<div id="workSpaceEdit" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px"></div>
-		<div id="gantEditorTemplates">
-			<div class="__template__" type="GANTBUTTONS"><!-- --></div>
-	{% else %}
-		<form id="gimmeBack" style="display:none;" action="../gimmeBack.jsp" method="post" target="_blank"><input type="hidden" name="prj" id="gimBaPrj"></form>
-		<div id="workSpace" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px"></div>
 		<div id="gantEditorTemplates">
 			<div class="__template__" type="GANTBUTTONS"><!--
 		  <div class="ganttButtonBar noprint main_header">
-			  <h1>{{sTitle}}</h1>
+			  <h1>{{ sTitle }}</h1>
 			      <button onclick="$('#workSpace').trigger('zoomMinus.gantt'); return false;" class="button textual icon " title="zoom out"><span class="teamworkIcon">)</span></button>
 			      <button onclick="$('#workSpace').trigger('zoomPlus.gantt');return false;" class="button textual icon " title="zoom in"><span class="teamworkIcon">(</span></button>
 			   <span class="ganttButtonSeparator"></span>
@@ -27,23 +22,23 @@
 			    </div>
 		    </div>
 		  --></div>
-	{% endif %}
-		<div class="__template__" type="TASKEMPTYROW"><!-- --></div>
-		<!--table with 8 columns minimum-->
-		<div class="__template__" type="TASKSEDITHEAD"><!--
+			{% endblock %}
+			<div class="__template__" type="TASKEMPTYROW"><!-- --></div>
+			<!--table with 8 columns minimum-->
+			<div class="__template__" type="TASKSEDITHEAD"><!--
 	  <table class="gdfTable" cellspacing="0" cellpadding="0">
 	    <thead>
 	    <tr style="height:40px">
 
-	      <th class="gdfColHeader gdfResizable" style="min-width:100px;">{{aDescription['attr_label']}}</th>
+	      <th class="gdfColHeader gdfResizable" style="min-width:100px;">{{ aDescription['attr_label'] }}</th>
 	      {% if ( aDescription['attr_add_info1']!='' ) %}
-	        <th class="gdfColHeader gdfResizable" style="min-width:100px;">{{aDescription['attr_add_info1']}}</th>
+	        <th class="gdfColHeader gdfResizable" style="min-width:100px;">{{ aDescription['attr_add_info1'] }}</th>
 	      {% endif %}
 	      {% if aDescription['attr_add_info2']!='' %}
-	        <th class="gdfColHeader gdfResizable" style="min-width:100px;">{{aDescription['attr_add_info2']}}</th>
+	        <th class="gdfColHeader gdfResizable" style="min-width:100px;">{{ aDescription['attr_add_info2'] }}</th>
 	       {% endif %}
-	      <th class="gdfColHeader gdfResizable" style="min-width:80px;">{{aDescription['attr_start_date']}}</th>
-	      <th class="gdfColHeader gdfResizable" style="min-width:80px;">{{aDescription['attr_end_date']}}</th>
+	      <th class="gdfColHeader gdfResizable" style="min-width:80px;">{{ aDescription['attr_start_date'] }}</th>
+	      <th class="gdfColHeader gdfResizable" style="min-width:80px;">{{ aDescription['attr_end_date'] }}</th>
 	      <th class="gdfColHeader gdfResizable" style="min-width:20px;">%</th>
           {% if aDescription['attr_add_info1']=='' %}
           	    <td class="gdfColHeader gdfResizable" style="min-width:10px;"></td>
@@ -58,7 +53,7 @@
 	  </table>
 	  --></div>
 
-		<div class="__template__" type="TASKROW"><!--
+			<div class="__template__" type="TASKROW"><!--
 	  <tr id="tid_(#=obj.id#)" taskId="(#=obj.id#)" class="taskEditRow (#=obj.isParent()?'isParent':''#) (#=obj.collapsed?'collapsed':''#)" level="(#=level#)">
 	    <td class="gdfCell indentCell" style="padding-left:(#=obj.level*10+18#)px;">
 	      <div class="exp-controller" align="center"></div>
@@ -84,7 +79,7 @@
 	  </tr>
 	  --></div>
 
-		<div class="__template__" type="TASKBAR"><!--
+			<div class="__template__" type="TASKBAR"><!--
 	  <div class="taskBox taskBoxDiv" taskId="(#=obj.id#)" >
 	    <div class="layout (#=obj.hasExternalDep?'extDep':''#)">
 	      <div class="taskStatus" status="(#=obj.status#)"></div>
@@ -95,5 +90,5 @@
 	  --></div>
 
 
+		</div>
 	</div>
-</div>
