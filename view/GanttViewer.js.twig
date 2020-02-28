@@ -27,7 +27,7 @@ function fKBInitCallback() {
         canAddIssue: false,
         cannotCloseTaskIfIssueOpen: false
     };
-    ge.resourceUrl = "../extensions/combodo-gantt-view/asset/lib/jQueryGantt/res/";
+    ge.resourceUrl = "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/res/";
 	{% if bEditMode %}
         ge.init($("#workSpaceEdit"));
 	{% else %}
@@ -43,7 +43,7 @@ function fKBInitCallback() {
 function loadGanttFromServer(taskId, callback) {
     console.warn('loadGanttFromServer');
 //    console.warn('sScope:'+{{sScope|raw}});
-    $.post('http://localhost/itopextension/iTop/extensions/combodo-gantt-view/ajax.php?operation=GetProject',
+    $.post('{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/ajax.php?operation=GetProject',
 		    {{sScope|raw}},null,'json')
         .done(function(data){
             ge.loadProject(data);

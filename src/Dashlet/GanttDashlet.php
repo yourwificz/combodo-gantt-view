@@ -44,7 +44,8 @@ class GanttDashlet extends Dashlet
 			$this->aProperties['title'] = Dict::S('GanttDashlet:Prop-Title:Default');
 			$this->aProperties['oql'] = 'SELECT UserRequest';
 			$this->aProperties['class_0'] = 'UserRequest';
-			$this->aProperties['depends_on'] = 'related_request_list';
+			$this->aProperties['depends_on'] = 'parent_request_id';
+			$this->aProperties['target_depends_on'] = '';
 			$this->aProperties['label_0'] = 'title';
 			$this->aProperties['start_date_0'] = 'start_date';
 			$this->aProperties['end_date_0'] = 'end_date';
@@ -55,6 +56,7 @@ class GanttDashlet extends Dashlet
 			$this->aProperties['oql'] = 'SELECT Contact ';
 			$this->aProperties['class_0'] = 'Contact';
 			$this->aProperties['depends_on'] = '';
+			$this->aProperties['target_depends_on'] = '';
 			$this->aProperties['label_0'] = '';
 			$this->aProperties['start_date_0'] = '';
 			$this->aProperties['end_date_0'] = '';
@@ -92,10 +94,17 @@ class GanttDashlet extends Dashlet
 			'title' => $this->aProperties['title'],
 			'oql' => $this->aProperties['oql'],
 			'depends_on' => $this->aProperties['depends_on'],
-
+			'target_depends_on'=> $this->aProperties['target_depends_on'],
 		);
 		$aScope = array_merge($aScope, $this->addFieldsToScope(0));
 
+		if($this->sOql = $aScope['oql']==''
+			|| $this->sLabel = $aScope['label']==''
+				|| $this->sStartDate = $aScope['start_date']==''
+					|| $aScope['end_date']=='')
+		{
+			throw new Exception(Dict::Format('GanttDashlet/Error:ParametersMissing'));
+		}
 		$oView = new Gantt($aScope, $bEditMode);
 		$sViewId = 'gantt_'.$this->sId.($bEditMode ? '_edit' : ''); // make a unique id (edition occuring in the same DOM)
 		$oView->DisplayDashlet($oPage, $sViewId);
@@ -178,6 +187,22 @@ class GanttDashlet extends Dashlet
 		}
 		$oForm->AddField($oField);
 
+		//$this->oModelReflection->GetAttributeProperty($sClass, $this->aProperties['depends_on'], 'targetclass')
+		if ($this->aProperties['depends_on']!='')
+		{
+			if( MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on']) instanceof AttributeLinkedSetIndirect)
+			{
+				$this->aProperties['target_depends_on']=MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on'])->GetExtKeyToRemote();
+			}
+			elseif(MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on']) instanceof AttributeLinkedSet)
+			{
+				$this->aProperties['target_depends_on']=MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on'])->GetExtKeyToMe();
+			}
+		}
+
+		$oForm->AddField(new DesignerHiddenField('target_depends_on', '', $this->aProperties['target_depends_on']));
+
+
 		$idx = 0;
 		while ($idx < 2)
 		{
@@ -189,7 +214,7 @@ class GanttDashlet extends Dashlet
 			{
 				$aDateOption = $this->GetOptions($sClass, true, false, false, false);
 				$aField = $this->GetOptions($sClass, false, false, false, false);
-				$aLinkParent = $this->GetOptions($sClass, false, false, false, false, true);
+				$aLinkParent = $this->GetOptions($sClass, false, false, false,  true);
 				$aNumberField = $this->GetOptions($sClass, false, true);
 			}
 			catch (Exception $e)
@@ -199,23 +224,22 @@ class GanttDashlet extends Dashlet
 				$aLinkParent = null;
 				$aNumberField = null;
 			}
-			if ($idx != 0)
+
+			if ($idx != 0 && $sClass != null)
 			{
-				if ( $sClass != null)
-				{
-					$oForm->StartFieldSet(Dict::Format('GanttDashlet/Prop:ParentInformations', ($idx)));
-					$oField = new DesignerTextField('class_'.$idx, '', $sClass);
-					$oField->SetReadOnly();
-					$oForm->AddField($oField);
-				}
-				else
-				{
-					$oField = new DesignerHiddenField('class_'.$idx, '', $sClass);
-					$oForm->AddField($oField);
-				}
+				$oForm->StartFieldSet(Dict::Format('GanttDashlet/Prop:ParentInformations', ($idx)));
+				$oField = new DesignerTextField('class_'.$idx, '', $sClass);
+				$oField->SetReadOnly();
+				$oForm->AddField($oField);
 			}
+			else
+			{
+				$oField = new DesignerHiddenField('class_'.$idx, '', $sClass);
+				$oForm->AddField($oField);
+			}
+
 			//label
-			$oForm->AddField($this->DisplayDesignerComboField('label_'.$idx, Dict::S('Class:Query/Attribute:name'),
+			$oForm->AddField($this->DisplayDesignerComboField('label_'.$idx, Dict::S('GanttDashlet//Prop:name'),
 				$this->aProperties['label_'.$idx], $aField, ($sClass != null), true));
 
 			//start date
@@ -290,7 +314,27 @@ class GanttDashlet extends Dashlet
 
 		return $oField;
 	}
-
+	public function FromParams($aParams)
+	{
+		parent::FromParams($aParams);
+		$this->aProperties['class_0'] = $this->oModelReflection->GetQuery($aParams['oql'])->GetClass();
+		$this->aProperties['target_depends_on']='';
+		if($this->aProperties['depends_on']!='')
+		{
+			if (MetaModel::GetAttributeDef($this->aProperties['class_0'],
+					$this->aProperties['depends_on']) instanceof AttributeLinkedSetIndirect)
+			{
+				$this->aProperties['target_depends_on'] = MetaModel::GetAttributeDef($this->aProperties['class_0'],
+					$this->aProperties['depends_on'])->GetExtKeyToRemote();
+			}
+			elseif (MetaModel::GetAttributeDef($this->aProperties['class_0'],
+					$this->aProperties['depends_on']) instanceof AttributeLinkedSet)
+			{
+				$this->aProperties['target_depends_on'] = MetaModel::GetAttributeDef($this->aProperties['class_0'],
+					$this->aProperties['depends_on'])->GetExtKeyToMe();
+			}
+		}
+	}
 	public function Update($aValues, $aUpdatedFields)
 	{
 		if (in_array('oql', $aUpdatedFields))
@@ -309,14 +353,40 @@ class GanttDashlet extends Dashlet
 				{
 					$this->bFormRedrawNeeded = true;
 					// wrong but not necessary - unset($aUpdatedFields['group_by']);
-					//$this->aProperties['group_by'] = '';
-					//$this->aProperties['grouping_attr'] = '';
+					$this->aProperties['depends_on'] = '';
+					$this->aProperties['target_depends_on'] = '';
+					$this->aProperties['label_0'] = '';
+					$this->aProperties['start_date_0'] = '';
+					$this->aProperties['end_date_0'] = '';
+					$this->aProperties['additional_info1_0'] = '';
+					$this->aProperties['additional_info2_0'] = '';
+					$this->aProperties['percentage_0'] = '';
+					$this->aProperties['parent_0'] = '';
+					$this->aProperties['class_0'] = $sCurrClass;
+					$aValues['class_0']= $sCurrClass;
+					array_push($aUpdatedFields,'class_0');
 				}
 			}
 			catch (Exception $e)
 			{
 				$this->bFormRedrawNeeded = true;
 			}
+		}
+		if (in_array('depends_on', $aUpdatedFields))
+		{
+			$this->bFormRedrawNeeded = true;
+			if( MetaModel::GetAttributeDef($aValues['class_0'], $aValues['depends_on']) instanceof AttributeLinkedSetIndirect)
+			{
+				$aValues['target_depends_on']=MetaModel::GetAttributeDef($aValues['class_0'], $aValues['depends_on'])->GetExtKeyToRemote();
+				$this->aProperties['target_depends_on']=$aValues['target_depends_on'];
+			}
+			elseif(MetaModel::GetAttributeDef($aValues['class_0'], $aValues['depends_on']) instanceof AttributeLinkedSet)
+			{
+				$aValues['target_depends_on']=MetaModel::GetAttributeDef($aValues['class_0'], $aValues['depends_on'])->GetExtKeyToMe();
+				$this->aProperties['target_depends_on']=$aValues['target_depends_on'];
+			}
+			$this->aProperties['target_depends_on']=$aValues['target_depends_on'];
+			array_push($aUpdatedFields,'target_depends_on');
 		}
 		if (in_array('parent_0', $aUpdatedFields))
 		{

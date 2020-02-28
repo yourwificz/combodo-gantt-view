@@ -37,6 +37,7 @@ class Gantt
 	protected $sEndDate;
 	protected $sPercentage;
 	protected $sDependsOn;
+	protected $sTargetDependsOn;
 	protected $sAdditionalInformation1;
 	protected $sAdditionalInformation2;
 	protected $bEditMode;
@@ -59,6 +60,7 @@ class Gantt
 		$this->bEditMode = $bEditMode;
 		$this->sOql = $aScope['oql'];
 		$this->sDependsOn = $aScope['depends_on'];
+		$this->sTargetDependsOn = $aScope['target_depends_on'];
 		$this->sLabel = $aScope['label'];
 		$this->sStartDate = $aScope['start_date'];
 		$this->sEndDate = $aScope['end_date'];
@@ -79,6 +81,7 @@ class Gantt
 		$aLinkedTable = array();
 
 		$oQuery = DBSearch::FromOQL($this->sOql);
+
 		$aFields = array($this->sLabel, $this->sStartDate, $this->sEndDate, $this->sDependsOn, 'id');
 		if ($this->sPercentage != null && $this->sPercentage != '')
 		{
@@ -100,6 +103,12 @@ class Gantt
 		$oResultSql = new DBObjectSet($oQuery);
 		$oResultSql->OptimizeColumnLoad($aFields);
 		$sClass = $oResultSql->GetClass();
+		$aOrderBy = array();
+		if ($this->sParent != '')
+		{
+			$aOrderBy[$sClass.'.'.$this->sParent] = true;
+		}
+		$oResultSql->SetOrderBy($aOrderBy);
 		$i = 0;
 		$aLevelParent1 = array();
 		$aLevelParent2 = array();
@@ -176,7 +185,7 @@ class Gantt
 			}
 			else
 			{
-				$aRow['dependson'] = $oRow->Get($aFields->sDependsOn)->GetColumnAsArray('id');
+				$aRow['dependson'] = $oRow->Get($aFields->sDependsOn)->GetColumnAsArray($aFields->sTargetDependsOn);
 			}
 		}
 		else{
@@ -298,7 +307,12 @@ class Gantt
 	public function DisplayDashlet(\WebPage $oP, $sId = 'gantt')
 	{
 		//render
-		$aData = array('sId' => $sId, 'sTitle' => $this->sTitle, 'bEditMode'=>$this->bEditMode,'sScope'=>json_encode($this->aScope),'aDescription'=>$this->GetGanttDescription());
+		$aData = array('sId' => $sId);
+		$aData['sTitle'] =  $this->sTitle;
+		$aData['bEditMode'] =$this->bEditMode;
+		$aData['sScope'] = json_encode($this->aScope);
+		$aData['aDescription'] = $this->GetGanttDescription();
+		$aData['sAbsUrlModulesRoot'] = utils::GetAbsoluteUrlModulesRoot();
 		$oP->add_twig_template(MODULESROOT.'combodo-gantt-view/view', 'GanttViewerDashlet', $aData);
 		//TwigHelper::RenderIntoPage($oP, MODULESROOT.'combodo-gantt-view/view', 'GanttViewer', $aData);
 	}
@@ -344,7 +358,12 @@ class Gantt
 		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttGridEditor.js');
 		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttMaster.js');
 		//render
-		$aData = array('sId' => $sId, 'sTitle' => $this->sTitle, 'bEditMode'=>$this->bEditMode,'sScope'=>json_encode($this->aScope),'aDescription'=>$this->GetGanttDescription());
+		$aData = array('sId' => $sId);
+		$aData['sTitle'] =  $this->sTitle;
+		$aData['bEditMode'] =$this->bEditMode;
+		$aData['sScope'] = json_encode($this->aScope);
+		$aData['aDescription'] = $this->GetGanttDescription();
+		$aData['sAbsUrlModulesRoot'] = utils::GetAbsoluteUrlModulesRoot();
 		TwigHelper::RenderIntoPage($oP, MODULESROOT.'combodo-gantt-view/view', 'GanttViewer', $aData);
 	}
 
