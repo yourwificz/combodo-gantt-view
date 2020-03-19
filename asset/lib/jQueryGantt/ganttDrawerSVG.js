@@ -234,7 +234,7 @@ Ganttalendar.prototype.drawTask = function (task) {
     taskBox.addClass("critical");
 
   if (this.master.permissions.canWrite || task.canWrite) {
-
+	  console.warn('drawer237');
     //bind all events on taskBox
     taskBox
       .click(function (e) { // manages selection
@@ -399,7 +399,7 @@ Ganttalendar.prototype.drawTask = function (task) {
 
 
 	function _createTaskSVG(task) {
-    var svg = self.svg;
+        var svg = self.svg;
 
 		var dimensions = {
 			x     : Math.round((task.start - self.startMillis) * self.fx),
@@ -879,7 +879,7 @@ Ganttalendar.prototype.centerOnToday = function () {
 
 
 /**
- * Allows drag and drop and extesion of task boxes. Only works on x axis
+ * Allows drag and drop and extension of task boxes. Only works on x axis
  * @param opt
  * @return {*}
  */

@@ -41,7 +41,7 @@ class GanttDashlet extends Dashlet
 			&& $this->oModelReflection->IsValidAttCode("UserRequest", "end_date")
 			&& $this->oModelReflection->IsValidAttCode("UserRequest", "related_request_list"))
 		{
-			$this->aProperties['title'] = Dict::S('GanttDashlet:Prop-Title:Default');
+			$this->aProperties['title'] = Dict::S('GanttDashlet/Prop:DefaultTitle');
 			$this->aProperties['oql'] = 'SELECT UserRequest';
 			$this->aProperties['class_0'] = 'UserRequest';
 			$this->aProperties['depends_on'] = 'parent_request_id';
@@ -52,7 +52,7 @@ class GanttDashlet extends Dashlet
 		}
 		else
 		{
-			$this->aProperties['title'] = Dict::S('GanttDashlet:Prop-Title:Default2');
+			$this->aProperties['title'] = Dict::S('GanttDashlet/Prop:DefaultTitle2');
 			$this->aProperties['oql'] = 'SELECT Contact ';
 			$this->aProperties['class_0'] = 'Contact';
 			$this->aProperties['depends_on'] = '';
@@ -81,6 +81,7 @@ class GanttDashlet extends Dashlet
 		$this->aProperties['additional_info2_2'] = '';
 		$this->aProperties['percentage_2'] = '';
 		$this->aProperties['parent_2'] = '';
+		$this->aProperties['bSaveAllowed'] = 0;
 	}
 
 	/**
@@ -95,6 +96,7 @@ class GanttDashlet extends Dashlet
 			'oql' => $this->aProperties['oql'],
 			'depends_on' => $this->aProperties['depends_on'],
 			'target_depends_on'=> $this->aProperties['target_depends_on'],
+			'bSaveAllowed'=>$this->aProperties['bSaveAllowed'],
 		);
 		$aScope = array_merge($aScope, $this->addFieldsToScope(0));
 
@@ -239,7 +241,7 @@ class GanttDashlet extends Dashlet
 			}
 
 			//label
-			$oForm->AddField($this->DisplayDesignerComboField('label_'.$idx, Dict::S('GanttDashlet//Prop:name'),
+			$oForm->AddField($this->DisplayDesignerComboField('label_'.$idx, Dict::S('GanttDashlet/Prop:name'),
 				$this->aProperties['label_'.$idx], $aField, ($sClass != null), true));
 
 			//start date

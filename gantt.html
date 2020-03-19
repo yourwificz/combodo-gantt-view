@@ -55,11 +55,9 @@
 
 var ge;
 $(function() {
-    console.warn('ini');
     var canWrite=true; //this is the default for test purposes
 
     // here starts gantt initialization
-    console.warn('new GanttMaster');
     ge = new GanttMaster();
     ge.set100OnClose=true;
 
@@ -76,7 +74,6 @@ $(function() {
 });
 
 function loadGanttFromServer(taskId, callback) {
-    console.warn('loadGanttFromServer');
     $.post('http://localhost/itopextension/iTop/extensions/combodo-gantt-view/ajax.php?operation=GetProject',
         null,null,'json')
         .done(function(data){

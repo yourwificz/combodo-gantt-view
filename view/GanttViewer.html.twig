@@ -5,12 +5,12 @@
 	{% block head %}
 		<form id="gimmeBack" style="display:none;" action="../gimmeBack.jsp" method="post" target="_blank"><input type="hidden" name="prj" id="gimBaPrj">
 		</form>
-		<div id="workSpace" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px">
+		<div id="workSpace" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px; width:100%;">
 		</div>
 		<div id="gantEditorTemplates">
 			<div class="__template__" type="GANTBUTTONS"><!--
-		  <div class="ganttButtonBar noprint main_header">
-			  <h1>{{ sTitle }}</h1>
+		  <p class="ganttButtonBar noprint">
+			  {{ sTitle }}&nbsp;&nbsp;&nbsp;
 			      <button onclick="$('#workSpace').trigger('zoomMinus.gantt'); return false;" class="button textual icon " title="zoom out"><span class="teamworkIcon">)</span></button>
 			      <button onclick="$('#workSpace').trigger('zoomPlus.gantt');return false;" class="button textual icon " title="zoom in"><span class="teamworkIcon">(</span></button>
 			   <span class="ganttButtonSeparator"></span>
@@ -19,10 +19,14 @@
 			      <button onclick="ge.splitter.resize(.1);return false;" class="button textual icon" ><span class="teamworkIcon">F</span></button>
 			      <button onclick="ge.splitter.resize(50);return false;" class="button textual icon" ><span class="teamworkIcon">O</span></button>
 			      <button onclick="ge.splitter.resize(100);return false;" class="button textual icon"><span class="teamworkIcon">R</span></button>
-			    </div>
+			     {% if bSaveAllowed %}
+			        <span class="ganttButtonSeparator requireCanSeeCriticalPath"></span>
+			            <button onclick="saveGanttOnServer();" class="button first big requireWrite" title="Save">Save</button>
+			      {% endif %}
+			    </p>
 		    </div>
 		  --></div>
-			{% endblock %}
+	{% endblock %}
 			<div class="__template__" type="TASKEMPTYROW"><!-- --></div>
 			<!--table with 8 columns minimum-->
 			<div class="__template__" type="TASKSEDITHEAD"><!--
@@ -74,7 +78,7 @@
 	    {% if aDescription['attr_add_info2']=='' %}
 	    	    <td class="gdfCell"></td>
 	     {% endif %}
-	    <td class="gdfCell"></td>
+	    <td class="gdfCell"><input type="hidden" name="duration" value=""></td>
 
 	  </tr>
 	  --></div>

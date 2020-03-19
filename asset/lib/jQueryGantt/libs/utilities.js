@@ -20,9 +20,6 @@
  WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
-
-console.warn('load utilites');
 // works also for IE8 beta
 var isExplorer = navigator.userAgent.toUpperCase().indexOf("MSIE") >= 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./);
 var isMozilla = navigator.userAgent.toUpperCase().indexOf("FIREFOX") >= 0;

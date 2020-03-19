@@ -420,9 +420,9 @@ function computeStartDate(start) {
   d = new Date(start + 3600000 * 12);
   d.setHours(0, 0, 0, 0);
   //move to next working day
-  while (isHoliday(d)) {
+  /*while (isHoliday(d)) {
     d.setDate(d.getDate() + 1);
-  }
+  }*/
   d.setHours(0, 0, 0, 0);
   return d;
 }
@@ -439,9 +439,9 @@ function computeEndDate(end) {
   var d = new Date(end - 3600000 * 12);
   d.setHours(23, 59, 59, 999);
   //move to next working day
-  while (isHoliday(d)) {
+  /*while (isHoliday(d)) {
     d.setDate(d.getDate() + 1);
-  }
+  }*/
   d.setHours(23, 59, 59, 999);
   return d;
 }
@@ -452,7 +452,7 @@ function computeEndByDuration(start, duration) {
   var q = duration - 1;
   while (q > 0) {
     d.setDate(d.getDate() + 1);
-    if (!isHoliday(d))
+    /*if (!isHoliday(d))*/
       q--;
   }
   d.setHours(23, 59, 59, 999);
@@ -473,7 +473,7 @@ function recomputeDuration(start, end) {
 }
 
 function resynchDates(leavingField, startField, startMilesField, durationField, endField, endMilesField) {
-  //console.debug("resynchDates",leavingField.prop("name"), "start. "+startField.val(),"durationField: "+ durationField.val(), "endField: "+endField.val());
+  console.warn("resynchDates",leavingField.prop("name"), "start. "+startField.val(),"durationField: "+ durationField.val(), "endField: "+endField.val());
 
   function resynchDatesSetFields(command) {
     //console.debug("resynchDatesSetFields",command);

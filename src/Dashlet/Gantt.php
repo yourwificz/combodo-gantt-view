@@ -28,7 +28,6 @@ class Gantt
 
 	const DEFAULT_TITLE = '';
 
-	protected static $bIsKBLoaderLoaded = false;
 	protected $sTitle;
 	protected $aExtraParams;
 	protected $sOql;
@@ -54,11 +53,12 @@ class Gantt
 	 * @param string $sMode
 	 * @param string $sTimeframe
 	 */
-	public function __construct($aScope,  $bEditMode = false)
+	public function __construct($aScope, $bEditMode = false)
 	{
 		$this->sTitle = $aScope['title'];
 		$this->bEditMode = $bEditMode;
 		$this->sOql = $aScope['oql'];
+		$this->aExtraParams = (array_key_exists('extra_params', $aScope))? $aScope['extra_params'] : array() ;
 		$this->sDependsOn = $aScope['depends_on'];
 		$this->sTargetDependsOn = $aScope['target_depends_on'];
 		$this->sLabel = $aScope['label'];
@@ -68,19 +68,34 @@ class Gantt
 		$this->sAdditionalInformation1 = $aScope['additional_info1'];
 		$this->sAdditionalInformation2 = $aScope['additional_info2'];
 		$this->sParent = $aScope['parent'];
-		if ($this->sParent !='')
+		if ($this->sParent != '')
 		{
-			$this->aParentFields =new ParentFields($aScope['parent_fields']);
+			$this->aParentFields = new ParentFields($aScope['parent_fields']);
 		}
-		$this->aScope=$aScope;
+		$this->aScope = $aScope;
+		$this->bSaveAllowed = false;//in first time fixed value
 	}
 
 	public function GetGanttValues()
 	{
 		$aDescription = array();
+		//table for associate an id with a line number
 		$aLinkedTable = array();
 
-		$oQuery = DBSearch::FromOQL($this->sOql);
+		if (isset($this->aExtraParams['query_params']))
+		{
+			$aQueryParams = $this->aExtraParams['query_params'];
+		}
+		elseif (isset($this->aExtraParams['this->class']) && isset($this->aExtraParams['this->id']))
+		{
+			$oObj = MetaModel::GetObject($this->aExtraParams['this->class'], $this->aExtraParams['this->id']);
+			$aQueryParams = $oObj->ToArgsForQuery();
+		}
+		else
+		{
+			$aQueryParams = array();
+		}
+		$oQuery = DBSearch::FromOQL($this->sOql, $aQueryParams);
 
 		$aFields = array($this->sLabel, $this->sStartDate, $this->sEndDate, $this->sDependsOn, 'id');
 		if ($this->sPercentage != null && $this->sPercentage != '')
@@ -115,7 +130,8 @@ class Gantt
 		while ($oRow = $oResultSql->Fetch())
 		{
 			$Level = 0;
-			if ( $this->sParent != '' && $oRow->Get($this->sParent) != null)
+			$canWrite=$this->bSaveAllowed;
+			if ($this->sParent != '' && $oRow->Get($this->sParent) != null)
 			{
 				if (!array_key_exists($oRow->Get($this->sParent), $aLevelParent1))
 				{
@@ -123,20 +139,42 @@ class Gantt
 					$oObj = MetaModel::GetObject($aFieldsParent1->sClass, $oRow->Get($this->sParent), false /* MustBeFound */);
 					if ($oObj != null)
 					{
-						if ($aFieldsParent1->sParent!='' && $oObj->Get($aFieldsParent1->sParent) != '' && !array_key_exists($oObj->Get($aFieldsParent1->sParent), $aLevelParent2))
+						if($canWrite)
+						{
+							$iFlags = MetaModel::GetAttributeFlags($sClass, $oObj->GetState(), $this->sStartDate);
+							if (($iFlags & OPT_ATT_READONLY) === OPT_ATT_READONLY
+								|| ($iFlags & OPT_ATT_SLAVE) === OPT_ATT_SLAVE
+								|| ($iFlags & OPT_ATT_HIDDEN) === OPT_ATT_HIDDEN)
+							{
+								$canWrite = false;
+							}
+						}
+						if ($aFieldsParent1->sParent != '' && $oObj->Get($aFieldsParent1->sParent) != '' && !array_key_exists($oObj->Get($aFieldsParent1->sParent),
+								$aLevelParent2))
 						{
 							$aFieldsParent2 = $aFieldsParent1->aParentFields;
-							$oObj = MetaModel::GetObject($aFieldsParent2->sClass, $oRow->Get($aFieldsParent1->sParent),
+							$oObjParent = MetaModel::GetObject($aFieldsParent2->sClass, $oRow->Get($aFieldsParent1->sParent),
 								false /* MustBeFound */);
-							if ($oObj != null)
+							if ($oObjParent != null)
 							{
-								$aDescription[$i] = $this->createRow($oObj, $aFieldsParent2->sClass, $aFieldsParent2, $Level, true);
+								$canWriteParent=$this->bSaveAllowed;
+								if($canWriteParent)
+								{
+									$iFlags = MetaModel::GetAttributeFlags($aFieldsParent2->sClass, $oObjParent->GetState(), $aFieldsParent2->sStartDate);
+									if (($iFlags & OPT_ATT_READONLY) === OPT_ATT_READONLY
+										|| ($iFlags & OPT_ATT_SLAVE) === OPT_ATT_SLAVE
+										|| ($iFlags & OPT_ATT_HIDDEN) === OPT_ATT_HIDDEN)
+									{
+										$canWriteParent = false;
+									}
+								}
+								$aDescription[$i] = $this->createRow($oObjParent, $aFieldsParent2->sClass, $aFieldsParent2, $Level, $canWriteParent,true);
 								$i++;
 								$aLevelParent2[$oRow->Get($this->sParent)] = $Level;
 								$Level++;
 							}
 						}
-						$aDescription[$i] = $this->createRow($oObj, $aFieldsParent1->sClass, $aFieldsParent1, $Level, true);
+						$aDescription[$i] = $this->createRow($oObj, $aFieldsParent1->sClass, $aFieldsParent1, $Level, $canWrite, true);
 						$i++;
 						$aLevelParent1[$oRow->Get($this->sParent)] = $Level;
 						$Level++;
@@ -148,7 +186,7 @@ class Gantt
 				}
 			}
 
-			$aDescription[$i] = $this->createRow($oRow, $sClass, $this, $Level);
+			$aDescription[$i] = $this->createRow($oRow, $sClass, $this, $Level, $canWrite);
 			$aLinkedTable[$oRow->Get("id")] = $i;
 			$i++;
 		}
@@ -156,7 +194,7 @@ class Gantt
 		return $this->renameLink($aDescription, $aLinkedTable);
 	}
 
-	private function createRow($oRow, $sClass, $aFields, $iLevel, $hasChild=false)
+	private function createRow($oRow, $sClass, $aFields, $iLevel, $canWrite = false, $hasChild = false)
 	{
 		$aRow = array();
 		$aRow['id'] = $sClass.'_'.$oRow->GetKey();
@@ -188,10 +226,11 @@ class Gantt
 				$aRow['dependson'] = $oRow->Get($aFields->sDependsOn)->GetColumnAsArray($aFields->sTargetDependsOn);
 			}
 		}
-		else{
+		else
+		{
 			$aRow['dependson'] = [];
 		}
-		$aRow['canWrite'] = true;
+		$aRow['canWrite'] = false;
 		$format = "Y-m-d H:i:s";
 
 		$aRow['start'] = date_format(date_create_from_format($format, $oRow->Get($aFields->sStartDate)), 'U') * 1000;
@@ -207,11 +246,11 @@ class Gantt
 		}
 		if ($this->sAdditionalInformation1 != '')
 		{
-			$aRow['info1'] =  $oRow->Get($aFields->sAdditionalInformation1);
+			$aRow['info1'] = $oRow->Get($aFields->sAdditionalInformation1);
 		}
 		if ($this->sAdditionalInformation2 != '')
 		{
-			$aRow['info2'] =  $oRow->Get($aFields->sAdditionalInformation2);
+			$aRow['info2'] = $oRow->Get($aFields->sAdditionalInformation2);
 		}
 		$aRow['duration'] = 1;
 		$aRow['collapsed'] = true;
@@ -221,30 +260,6 @@ class Gantt
 		return $aRow;
 	}
 
-	/*function moveKeyAfter($arr, $find, $move) {
-		if (!isset($arr[$find], $arr[$move])) {
-			return $arr;
-		}
-
-		$elem = [$move=>$arr[$move]];  // cache the element to be moved
-		$start = array_splice($arr, 0, array_search($find, array_keys($arr)));
-		unset($start[$move]);  // only important if $move is in $start
-		return $start + $elem + $arr;
-	}
-
-
-	private function orderTask($aDescription)
-	{
-		$aOrderedTasks=array();
-		foreach(array_keys( $aDescription) as $key)
-		{
-			if($aDescription[$key])
-			{
-
-			}
-		}
-		return $aDescription;
-	}*/
 	private function renameLink($aDescription, $aLinkedTable)
 	{
 		foreach ($aDescription as &$aRow)
@@ -254,7 +269,10 @@ class Gantt
 				$newLink = array();
 				foreach ($aRow['dependson'] as $sIdRow)
 				{
-					array_push($newLink, $aLinkedTable[$sIdRow]+1);
+					if (array_key_exists($sIdRow, $aLinkedTable))
+					{
+						array_push($newLink, $aLinkedTable[$sIdRow] + 1);
+					}
 				}
 				$aRow['depends'] = implode(",", $newLink);
 			}
@@ -288,8 +306,8 @@ class Gantt
 			'attr_label' => $oAttLabelDef->GetLabel(),
 			'attr_start_date' => $oAttLabelStartDate->GetLabel(),
 			'attr_end_date' => $oAttLabelEndDate->GetLabel(),
-			'attr_add_info1' => ($oAttAdditionalInformation1Def!=null)?$oAttAdditionalInformation1Def->GetLabel():'',
-			'attr_add_info2' => ($oAttAdditionalInformation2Def!=null)?$oAttAdditionalInformation2Def->GetLabel():'',
+			'attr_add_info1' => ($oAttAdditionalInformation1Def != null) ? $oAttAdditionalInformation1Def->GetLabel() : '',
+			'attr_add_info2' => ($oAttAdditionalInformation2Def != null) ? $oAttAdditionalInformation2Def->GetLabel() : '',
 		);
 
 		return $aHandlerOptions;
@@ -308,13 +326,15 @@ class Gantt
 	{
 		//render
 		$aData = array('sId' => $sId);
-		$aData['sTitle'] =  $this->sTitle;
-		$aData['bEditMode'] =$this->bEditMode;
+		$aData['sTitle'] = $this->sTitle;
+		$aData['bEditMode'] = $this->bEditMode;
 		$aData['sScope'] = json_encode($this->aScope);
 		$aData['aDescription'] = $this->GetGanttDescription();
 		$aData['sAbsUrlModulesRoot'] = utils::GetAbsoluteUrlModulesRoot();
+
+		$aData['dateFormat'] = MetaModel::GetConfig()->Get('date_and_time_format')['default']['date'];
+		$aData['dateFormat'] = str_replace(array("y", "Y", "m", "d"), array("yy", "yyyy", "MM", "dd"), $aData['dateFormat']);
 		$oP->add_twig_template(MODULESROOT.'combodo-gantt-view/view', 'GanttViewerDashlet', $aData);
-		//TwigHelper::RenderIntoPage($oP, MODULESROOT.'combodo-gantt-view/view', 'GanttViewer', $aData);
 	}
 
 	/**
@@ -359,35 +379,24 @@ class Gantt
 		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttMaster.js');
 		//render
 		$aData = array('sId' => $sId);
-		$aData['sTitle'] =  $this->sTitle;
-		$aData['bEditMode'] =$this->bEditMode;
+		$aData['sTitle'] = $this->sTitle;
+		$aData['bEditMode'] = $this->bEditMode;
+		$aData['bSaveAllowed'] = true;
+		//$aData['bSaveAllowed'] = isSaveAllowed($this->aScope['class_0'], $this->bSaveAllowed);
 		$aData['sScope'] = json_encode($this->aScope);
 		$aData['aDescription'] = $this->GetGanttDescription();
 		$aData['sAbsUrlModulesRoot'] = utils::GetAbsoluteUrlModulesRoot();
+		$aData['dateFormat'] = "yy-MM-dd";
 		TwigHelper::RenderIntoPage($oP, MODULESROOT.'combodo-gantt-view/view', 'GanttViewer', $aData);
 	}
 
-	/**
-	 * @return array
-	 */
-	private function getArrayScopeDate($oQuery, $oSet, $sDate, $oDateingExp, $aDateingValues, $sDateingAttr, $aStimuli, $bWithLifeCycle)
+	private function isSaveAllowed($sClass, $bSaveAllowed)
 	{
-		$sHtmlLabel = $oDateingExp->MakeValueLabel($oQuery, $sDate, '');
-		$iCount = 0;
-		foreach ($aDateingValues as $aDateingValue)
-		{
-			if ($sDate == $aDateingValue['grouped_by_1'])
-			{
-				$iCount = $aDateingValue['_itop_count_'];
-			}
-		}
+		$oReflectionClass = new ReflectionClass($sClass);
 
-		return array(
-			'value' => $sDate,
-			'label' => strip_tags($sHtmlLabel),
-			'count' => $iCount,
-			'is_fake' => false,
-		);
+		return (UserRights::IsActionAllowed($sClass,UR_ACTION_MODIFY) == UR_ALLOWED_YES)
+				&& ($oReflectionClass->IsSubclassOf('cmdbAbstractObject'))
+				&& $bSaveAllowed;
 	}
 }
 
@@ -424,6 +433,5 @@ class ParentFields
 			$this->aParentFields = new ParentFields($aScope['parent_fields']);
 		}
 	}
-
 
 }

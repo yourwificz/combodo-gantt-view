@@ -102,7 +102,6 @@ jQuery.fn.dateField = function(options) {
     enableComponentOverlay(options.inputField,theDiv);
   }
   $("body").append(theDiv);
-	console.warn('hivpoh');
 
   if (options.centerOnScreen){
     theDiv.oneTime(10,"ce",function(){$(this).centerOnScreen()});

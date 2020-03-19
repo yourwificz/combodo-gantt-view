@@ -6,7 +6,7 @@
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
-Dict::Add('EN US', 'English', 'English', array(
+Dict::Add('FR FR', 'French', 'Français', array(
 	// Dictionary entries go here
 	'GanttDashlet/Label' => 'Gantt',
 	'GanttDashlet/Description' => 'See objects as a Gantt',
@@ -27,3 +27,4 @@ Dict::Add('EN US', 'English', 'English', array(
 	'GanttDashlet/Prop:Percentage'=>'Percentage of completion',
 	'GanttDashlet/Prop:ParentInformations' => 'Parent informations',
 ));
+?>

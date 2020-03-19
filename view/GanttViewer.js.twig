@@ -8,14 +8,13 @@ function fKBInitCallback() {
     var canWrite=true; //this is the default for test purposes
 
     // here starts gantt initialization
-    console.warn('new GanttMaster');
     ge = new GanttMaster();
     ge.set100OnClose=false;
     ge.fillWithEmptyLines=false;
-    ge.shrinkParent=true;
+    ge.shrinkParent=false;
     ge.permissions = {
-        canWriteOnParent: true,
-        canWrite: true,
+        canWriteOnParent: false,
+        canWrite: false,
         canAdd: false,
         canDelete: false,
         canInOutdent: false,
@@ -27,12 +26,13 @@ function fKBInitCallback() {
         canAddIssue: false,
         cannotCloseTaskIfIssueOpen: false
     };
-    ge.resourceUrl = "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/res/";
+   ge.resourceUrl = "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/res/";
 	{% if bEditMode %}
         ge.init($("#workSpaceEdit"));
 	{% else %}
         ge.init($("#workSpace"));
 	{% endif %}
+    ge.setHoursOn("2880000","6480000","{{dateFormat|raw}}","6000");
     loadI18n(); //overwrite with localized ones
 
     //in order to force compute the best-fitting zoom level
@@ -41,7 +41,6 @@ function fKBInitCallback() {
     loadGanttFromServer(0,alert);
 }
 function loadGanttFromServer(taskId, callback) {
-    console.warn('loadGanttFromServer');
 //    console.warn('sScope:'+{{sScope|raw}});
     $.post('{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/ajax.php?operation=GetProject',
 		    {{sScope|raw}},null,'json')
@@ -49,8 +48,7 @@ function loadGanttFromServer(taskId, callback) {
             ge.loadProject(data);
             ge.checkpoint(); //empty the undo stack
             var myHeight=Math.min( $(window).height() - $('#TWGanttArea').position().top, ge.rowHeight*data.tasks.length+60);
-            console.warn('myHeight'+myHeight);
-            $('#TWGanttArea').css({ height: myHeight});
+            $('#TWGanttArea').height( myHeight);
         });
 
 }

@@ -166,9 +166,9 @@ GridEditor.prototype.refreshTaskRow = function (task) {
   row.find("[name=duration]").val(durationToString(task.duration)).prop("readonly",!canWrite || task.isParent() && task.master.shrinkParent);
   row.find("[name=progress]").val(task.progress).prop("readonly",!canWrite || task.progressByWorklog==true);
   row.find("[name=startIsMilestone]").prop("checked", task.startIsMilestone);
-  row.find("[name=start]").val(new Date(task.start).format()).updateOldValue().prop("readonly",!canWrite || task.depends || !(task.canWrite  || this.master.permissions.canWrite) ); // called on dates only because for other field is called on focus event
+  row.find("[name=start]").val(new Date(task.start).format()).updateOldValue();//.prop("readonly",!canWrite || task.depends || !(task.canWrite  || this.master.permissions.canWrite) ); // called on dates only because for other field is called on focus event
   row.find("[name=endIsMilestone]").prop("checked", task.endIsMilestone);
-  row.find("[name=end]").val(new Date(task.end).format()).prop("readonly",!canWrite || task.isParent() && task.master.shrinkParent).updateOldValue();
+  row.find("[name=end]").val(new Date(task.end).format()).updateOldValue();//.prop("readonly",!canWrite || task.isParent() && task.master.shrinkParent);
   row.find("[name=depends]").val(task.depends);
   row.find(".taskAssigs").html(task.getAssigsString());
 
@@ -609,7 +609,7 @@ GridEditor.prototype.openFullEditor = function (task, editOnlyAssig) {
           workloadDatesChanged();
       }
     });
-
+	console.warn("jQueryGantt612+"+new Date(task.start).format());
     taskEditor.find("#startIsMilestone,#endIsMilestone").click(function () {
       var inp = $(this);
       resynchDates(inp, taskEditor.find("[name=start]"), taskEditor.find("[name=startIsMilestone]"), taskEditor.find("[name=duration]"), taskEditor.find("[name=end]"), taskEditor.find("[name=endIsMilestone]"));
@@ -699,8 +699,10 @@ GridEditor.prototype.openFullEditor = function (task, editOnlyAssig) {
       });
 
       //change dates
+	    console.warn("jQueryGantt702+"+new Date(task.start).format());
       task.setPeriod(Date.parseString(taskEditor.find("#start").val()).getTime(), Date.parseString(taskEditor.find("#end").val()).getTime() + (3600000 * 22));
 
+	    console.warn("jQueryGantt705+"+new Date(task.start).format());
       //change status
       task.changeStatus(taskEditor.find("#status").val());
 
@@ -719,6 +721,7 @@ GridEditor.prototype.openFullEditor = function (task, editOnlyAssig) {
   if (typeof(workloadDatesChanged)=="function")
     workloadDatesChanged();
 
+	console.warn("jQueryGantt724+"+new Date(task.start).format());
 
 
 };
