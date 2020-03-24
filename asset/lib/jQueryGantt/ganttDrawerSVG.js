@@ -77,7 +77,7 @@ Ganttalendar.prototype.zoomGantt = function (isPlus) {
 
 Ganttalendar.prototype.getStoredZoomLevel = function () {
   if (localStorage  && localStorage.getObject("TWPGanttSavedZooms")) {
-    var savedZooms = localStorage.getObject("TWPGanttSavedZooms");
+	  var savedZooms = localStorage.getObject("TWPGanttSavedZooms");
     return savedZooms[this.master.tasks[0].id];
   }
   return false;
@@ -234,7 +234,7 @@ Ganttalendar.prototype.drawTask = function (task) {
     taskBox.addClass("critical");
 
   if (this.master.permissions.canWrite || task.canWrite) {
-	  console.warn('drawer237');
+
     //bind all events on taskBox
     taskBox
       .click(function (e) { // manages selection
@@ -814,23 +814,23 @@ Ganttalendar.prototype.redraw = function () {
   }
 
   if (this.gridChanged) {
-    this.gridChanged=false;
-  var par = this.element.parent();
+  	  this.gridChanged=false;
+	  var par = this.element.parent();
 
-  //try to maintain last scroll
-  var scrollY = par.scrollTop();
-  var scrollX = par.scrollLeft();
+	  //try to maintain last scroll
+	  var scrollY = par.scrollTop();
+	  var scrollX = par.scrollLeft();
 
-  this.element.remove();
+	  this.element.remove();
 
-    var domEl = this.createGanttGrid();
-  this.element = domEl;
-  par.append(domEl);
-  this.redrawTasks();
+	  var domEl = this.createGanttGrid();
+	  this.element = domEl;
+	  par.append(domEl);
+	  this.redrawTasks();
 
-  //set old scroll  
-  par.scrollTop(scrollY);
-  par.scrollLeft(scrollX);
+	  //set old scroll
+	  par.scrollTop(scrollY);
+	  par.scrollLeft(scrollX);
 
   } else {
     this.redrawTasks();
@@ -843,7 +843,12 @@ Ganttalendar.prototype.redraw = function () {
   //prof.stop();
   //Profiler.displayAll();
   //Profiler.reset()
+	if(this.master.isPrintable)
+	{
+		var alignLeft = (par.width()-par.find(".gantt").width()) / 2;
+		par.find(".gantt").offset({left: alignLeft});
 
+	}
 };
 
 

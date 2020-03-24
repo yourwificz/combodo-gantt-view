@@ -64,6 +64,13 @@ class GanttDashlet extends Dashlet
 		$this->aProperties['additional_info1_0'] = '';
 		$this->aProperties['additional_info2_0'] = '';
 		$this->aProperties['percentage_0'] = '';
+		$this->aProperties['status_0'] = '';
+		$this->aProperties['status_active_0'] = array();
+		$this->aProperties['status_suspended_0'] = array();
+		$this->aProperties['status_waiting_0'] = array();
+		$this->aProperties['status_done_0'] = array();
+		$this->aProperties['status_failed_0'] = array();
+		//STATUS_UNDEFINED for others
 		$this->aProperties['parent_0'] = '';
 		$this->aProperties['class_1'] = '';
 		$this->aProperties['label_1'] = '';
@@ -81,7 +88,7 @@ class GanttDashlet extends Dashlet
 		$this->aProperties['additional_info2_2'] = '';
 		$this->aProperties['percentage_2'] = '';
 		$this->aProperties['parent_2'] = '';
-		$this->aProperties['bSaveAllowed'] = 0;
+		$this->aProperties['save_allowed'] = 0;
 	}
 
 	/**
@@ -95,15 +102,15 @@ class GanttDashlet extends Dashlet
 			'title' => $this->aProperties['title'],
 			'oql' => $this->aProperties['oql'],
 			'depends_on' => $this->aProperties['depends_on'],
-			'target_depends_on'=> $this->aProperties['target_depends_on'],
-			'bSaveAllowed'=>$this->aProperties['bSaveAllowed'],
+			'target_depends_on' => $this->aProperties['target_depends_on'],
+			'save_allowed' => $this->aProperties['save_allowed'],
 		);
 		$aScope = array_merge($aScope, $this->addFieldsToScope(0));
 
-		if($this->sOql = $aScope['oql']==''
-			|| $this->sLabel = $aScope['label']==''
-				|| $this->sStartDate = $aScope['start_date']==''
-					|| $aScope['end_date']=='')
+		if ($this->sOql = $aScope['oql'] == ''
+			|| $this->sLabel = $aScope['label'] == ''
+			|| $this->sStartDate = $aScope['start_date'] == ''
+			|| $aScope['end_date'] == '')
 		{
 			throw new Exception(Dict::Format('GanttDashlet/Error:ParametersMissing'));
 		}
@@ -128,7 +135,19 @@ class GanttDashlet extends Dashlet
 			'percentage' => $this->aProperties['percentage_'.$idx],
 			'parent' => $this->aProperties['parent_'.$idx],
 			'class' => $this->aProperties['class_'.$idx],
+			'status' => $this->aProperties['status_'.$idx],
 		);
+		if ($idx==0)
+		{
+			$aScope = array_merge($aScope,
+				array(
+					'status_active' => $this->aProperties['status_active_'.$idx],
+					'status_suspended' => $this->aProperties['status_suspended_'.$idx],
+					'status_waiting' => $this->aProperties['status_waiting_'.$idx],
+					'status_done' => $this->aProperties['status_done_'.$idx],
+					'status_failed' => $this->aProperties['status_failed_'.$idx]
+				));
+		}
 		if ($this->aProperties['parent_'.$idx])
 		{
 			try
@@ -189,21 +208,21 @@ class GanttDashlet extends Dashlet
 		}
 		$oForm->AddField($oField);
 
-		//$this->oModelReflection->GetAttributeProperty($sClass, $this->aProperties['depends_on'], 'targetclass')
-		if ($this->aProperties['depends_on']!='')
+		if ($this->aProperties['depends_on'] != '')
 		{
-			if( MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on']) instanceof AttributeLinkedSetIndirect)
+			if (MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on']) instanceof AttributeLinkedSetIndirect)
 			{
-				$this->aProperties['target_depends_on']=MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on'])->GetExtKeyToRemote();
+				$this->aProperties['target_depends_on'] = MetaModel::GetAttributeDef($sClass,
+					$this->aProperties['depends_on'])->GetExtKeyToRemote();
 			}
-			elseif(MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on']) instanceof AttributeLinkedSet)
+			elseif (MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on']) instanceof AttributeLinkedSet)
 			{
-				$this->aProperties['target_depends_on']=MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on'])->GetExtKeyToMe();
+				$this->aProperties['target_depends_on'] = MetaModel::GetAttributeDef($sClass,
+					$this->aProperties['depends_on'])->GetExtKeyToMe();
 			}
 		}
 
 		$oForm->AddField(new DesignerHiddenField('target_depends_on', '', $this->aProperties['target_depends_on']));
-
 
 		$idx = 0;
 		while ($idx < 2)
@@ -216,7 +235,7 @@ class GanttDashlet extends Dashlet
 			{
 				$aDateOption = $this->GetOptions($sClass, true, false, false, false);
 				$aField = $this->GetOptions($sClass, false, false, false, false);
-				$aLinkParent = $this->GetOptions($sClass, false, false, false,  true);
+				$aLinkParent = $this->GetOptions($sClass, false, false, false, true);
 				$aNumberField = $this->GetOptions($sClass, false, true);
 			}
 			catch (Exception $e)
@@ -256,6 +275,92 @@ class GanttDashlet extends Dashlet
 			$oForm->AddField($this->DisplayDesignerComboField('percentage_'.$idx, Dict::S('GanttDashlet/Prop:Percentage'),
 				$this->aProperties['percentage_'.$idx], $aNumberField, ($sClass != null), false));
 
+			if ($idx == 0 )
+			{
+				//status_attr
+				$sAttributeStatus=MetaModel::GetStateAttributeCode($sClass);
+				if ($sAttributeStatus!='')
+				{
+					$aTargetStatus = $this->oModelReflection->GetAllowedValues_att($sClass, $sAttributeStatus);
+					$oField = new DesignerTextField('status_'.$idx, '', $sAttributeStatus);
+					$oField->SetReadOnly();
+					$oForm->AddField($oField);
+
+					$oField = new DesignerHiddenField('status_'.$idx, '', $sAttributeStatus);
+					$oForm->AddField($oField);
+
+					$oField = new DesignerComboField('status_active_'.$idx, Dict::S('GanttDashlet/Prop:Status:active'),
+						$this->aProperties['status_active_'.$idx]);
+					$oField->MultipleSelection(true);
+					$oField->SetAllowedValues($aTargetStatus);
+					$oForm->AddField($oField);
+
+					$oField = new DesignerComboField('status_suspended_'.$idx, Dict::S('GanttDashlet/Prop:Status:suspended'),
+						$this->aProperties['status_suspended_'.$idx]);
+					$oField->MultipleSelection(true);
+					$oField->SetAllowedValues($aTargetStatus);
+					$oForm->AddField($oField);
+
+					$oField = new DesignerComboField('status_done_'.$idx, Dict::S('GanttDashlet/Prop:Status:done'),
+						$this->aProperties['status_done_'.$idx]);
+					$oField->MultipleSelection(true);
+					$oField->SetAllowedValues($aTargetStatus);
+					$oForm->AddField($oField);
+
+					$oField = new DesignerComboField('status_waiting_'.$idx, Dict::S('GanttDashlet/Prop:Status:waiting'),
+						$this->aProperties['status_waiting_'.$idx]);
+					$oField->MultipleSelection(true);
+					$oField->SetAllowedValues($aTargetStatus);
+					$oForm->AddField($oField);
+
+					$oField = new DesignerComboField('status_failed_'.$idx, Dict::S('GanttDashlet/Prop:Status:failed'),
+						$this->aProperties['status_failed_'.$idx]);
+					$oField->MultipleSelection(true);
+					$oField->SetAllowedValues($aTargetStatus);
+					$oForm->AddField($oField);
+				}
+				else
+				{
+					$aTargetStatus = MetaModel::EnumTransitions($sClass, $sAttributeStatus);
+					$oField = new DesignerTextField('status_'.$idx, '', $sAttributeStatus);
+					$oField->SetReadOnly();
+					$oForm->AddField($oField);
+
+					$oField = new DesignerHiddenField('status_'.$idx, '', $sAttributeStatus);
+					$oForm->AddField($oField);
+
+					$oField = new DesignerComboField('status_active_'.$idx, Dict::S('GanttDashlet/Prop:Status:active'),
+						$this->aProperties['status_active_'.$idx]);
+					$oField->MultipleSelection(true);
+						$oField->SetReadOnly();
+					$oForm->AddField($oField);
+
+					$oField = new DesignerComboField('status_suspended_'.$idx, Dict::S('GanttDashlet/Prop:Status:suspended'),
+						$this->aProperties['status_suspended_'.$idx]);
+					$oField->MultipleSelection(true);
+						$oField->SetReadOnly();
+					$oForm->AddField($oField);
+
+					$oField = new DesignerComboField('status_done_'.$idx, Dict::S('GanttDashlet/Prop:Status:done'),
+						$this->aProperties['status_done_'.$idx]);
+					$oField->MultipleSelection(true);
+						$oField->SetReadOnly();
+					$oForm->AddField($oField);
+
+					$oField = new DesignerComboField('status_waiting_'.$idx, Dict::S('GanttDashlet/Prop:Status:waiting'),
+						$this->aProperties['status_waiting_'.$idx]);
+					$oField->MultipleSelection(true);
+						$oField->SetReadOnly();
+					$oForm->AddField($oField);
+
+					$oField = new DesignerComboField('status_failed_'.$idx, Dict::S('GanttDashlet/Prop:Status:failed'),
+						$this->aProperties['status_failed_'.$idx]);
+					$oField->MultipleSelection(true);
+						$oField->SetReadOnly();
+					$oForm->AddField($oField);
+				}
+			}
+
 			//additional_info
 			$oForm->AddField($this->DisplayDesignerComboField('additional_info1_'.$idx,
 				Dict::Format('GanttDashlet/Prop:AdditionalInfoLeft'),
@@ -265,7 +370,6 @@ class GanttDashlet extends Dashlet
 			$oForm->AddField($this->DisplayDesignerComboField('additional_info2_'.$idx,
 				Dict::Format('GanttDashlet/Prop:AdditionalInfoRight'),
 				$this->aProperties['additional_info2_'.$idx], $aField, ($sClass != null), false));
-
 
 			//parent item
 			$oForm->AddField($this->DisplayDesignerComboField('parent_'.$idx, Dict::S('GanttDashlet/Prop:ParentField'),
@@ -293,7 +397,7 @@ class GanttDashlet extends Dashlet
 	private function DisplayDesignerComboField($sName, $sLabel, $sValue, $aAllowedValues, $bDisplay, $bMandatory)
 	{
 		$oField = null;
-		if($bDisplay)
+		if ($bDisplay)
 		{
 			$oField = new DesignerComboField($sName, $sLabel, $sValue);
 			if ($aAllowedValues != null)
@@ -310,18 +414,20 @@ class GanttDashlet extends Dashlet
 				$oField->SetDisplayed(false);
 			}
 		}
-		else{
-			$oField=new DesignerHiddenField($sName, '',$sValue);
+		else
+		{
+			$oField = new DesignerHiddenField($sName, '', $sValue);
 		}
 
 		return $oField;
 	}
+
 	public function FromParams($aParams)
 	{
 		parent::FromParams($aParams);
 		$this->aProperties['class_0'] = $this->oModelReflection->GetQuery($aParams['oql'])->GetClass();
-		$this->aProperties['target_depends_on']='';
-		if($this->aProperties['depends_on']!='')
+		$this->aProperties['target_depends_on'] = '';
+		if ($this->aProperties['depends_on'] != '')
 		{
 			if (MetaModel::GetAttributeDef($this->aProperties['class_0'],
 					$this->aProperties['depends_on']) instanceof AttributeLinkedSetIndirect)
@@ -337,6 +443,7 @@ class GanttDashlet extends Dashlet
 			}
 		}
 	}
+
 	public function Update($aValues, $aUpdatedFields)
 	{
 		if (in_array('oql', $aUpdatedFields))
@@ -365,8 +472,8 @@ class GanttDashlet extends Dashlet
 					$this->aProperties['percentage_0'] = '';
 					$this->aProperties['parent_0'] = '';
 					$this->aProperties['class_0'] = $sCurrClass;
-					$aValues['class_0']= $sCurrClass;
-					array_push($aUpdatedFields,'class_0');
+					$aValues['class_0'] = $sCurrClass;
+					array_push($aUpdatedFields, 'class_0');
 				}
 			}
 			catch (Exception $e)
@@ -377,24 +484,25 @@ class GanttDashlet extends Dashlet
 		if (in_array('depends_on', $aUpdatedFields))
 		{
 			$this->bFormRedrawNeeded = true;
-			if( MetaModel::GetAttributeDef($aValues['class_0'], $aValues['depends_on']) instanceof AttributeLinkedSetIndirect)
+			if (MetaModel::GetAttributeDef($aValues['class_0'], $aValues['depends_on']) instanceof AttributeLinkedSetIndirect)
 			{
-				$aValues['target_depends_on']=MetaModel::GetAttributeDef($aValues['class_0'], $aValues['depends_on'])->GetExtKeyToRemote();
-				$this->aProperties['target_depends_on']=$aValues['target_depends_on'];
+				$aValues['target_depends_on'] = MetaModel::GetAttributeDef($aValues['class_0'],
+					$aValues['depends_on'])->GetExtKeyToRemote();
+				$this->aProperties['target_depends_on'] = $aValues['target_depends_on'];
 			}
-			elseif(MetaModel::GetAttributeDef($aValues['class_0'], $aValues['depends_on']) instanceof AttributeLinkedSet)
+			elseif (MetaModel::GetAttributeDef($aValues['class_0'], $aValues['depends_on']) instanceof AttributeLinkedSet)
 			{
-				$aValues['target_depends_on']=MetaModel::GetAttributeDef($aValues['class_0'], $aValues['depends_on'])->GetExtKeyToMe();
-				$this->aProperties['target_depends_on']=$aValues['target_depends_on'];
+				$aValues['target_depends_on'] = MetaModel::GetAttributeDef($aValues['class_0'], $aValues['depends_on'])->GetExtKeyToMe();
+				$this->aProperties['target_depends_on'] = $aValues['target_depends_on'];
 			}
-			$this->aProperties['target_depends_on']=$aValues['target_depends_on'];
-			array_push($aUpdatedFields,'target_depends_on');
+			$this->aProperties['target_depends_on'] = $aValues['target_depends_on'];
+			array_push($aUpdatedFields, 'target_depends_on');
 		}
 		if (in_array('parent_0', $aUpdatedFields))
 		{
 			//redraw
 			$this->bFormRedrawNeeded = true;
-			array_push($aUpdatedFields,'class_1');
+			array_push($aUpdatedFields, 'class_1');
 		}
 
 		return parent::Update($aValues, $aUpdatedFields);

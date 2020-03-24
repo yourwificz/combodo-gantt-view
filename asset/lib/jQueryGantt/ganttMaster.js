@@ -30,6 +30,7 @@ function GanttMaster() {
   this.splitter; //element for splitter
 
   this.isMultiRoot=false; // set to true in case of tasklist
+  this.isPrintable=false;
 
   this.workSpace;  // the original element used for containing everything
   this.element; // editor and gantt box without buttons
@@ -90,7 +91,7 @@ function GanttMaster() {
 }
 
 GanttMaster.prototype.init = function (workSpace) {
-  var place=$("<div>").prop("id","TWGanttArea").css( {padding:0, "overflow-y":"auto", "overflow-x":"hidden","border":"1px solid #e5e5e5",position:"relative"});
+  var place=$("<div>").prop("id","TWGanttArea").css( {padding:0, "overflow":"hidden","border":"1px solid #e5e5e5",position:"relative"});
   workSpace.append(place).addClass("TWGanttWorkSpace");
 
   this.workSpace=workSpace;
@@ -192,7 +193,7 @@ GanttMaster.prototype.init = function (workSpace) {
 
   //keyboard management bindings
   $("body").bind("keydown.body", function (e) {
-    console.warn(e.keyCode+ " "+e.target.nodeName, e.ctrlKey)
+    //console.debug(e.keyCode+ " "+e.target.nodeName, e.ctrlKey)
 
     var eventManaged = true;
     var isCtrl = e.ctrlKey || e.metaKey;
@@ -372,7 +373,8 @@ GanttMaster.prototype.__removeAllLinks = function (task, openTrans) {
 
 //------------------------------------  ADD TASK --------------------------------------------
 GanttMaster.prototype.addTask = function (task, row) {
-  console.warn("master.addTask",task,row,this);
+  //console.debug("master.addTask",task,row,this);
+
   task.master = this; // in order to access controller from task
 
   //replace if already exists
@@ -471,7 +473,6 @@ GanttMaster.prototype.loadProject = function (project) {
     task.end += this.serverClientTimeOffset;
     //set initial collapsed status
     task.collapsed=collTasks.indexOf(task.id)>=0;
-	  console.warn("GanttMaster474+"+new Date(task.start).format());
   }
 
 
@@ -495,7 +496,7 @@ GanttMaster.prototype.loadProject = function (project) {
 
 
 GanttMaster.prototype.loadTasks = function (tasks, selectedRow) {
-  console.warn("GanttMaster.prototype.loadTasks")
+  //console.debug("GanttMaster.prototype.loadTasks")
   //var prof=new Profiler("ganttMaster.loadTasks");
   var factory = new TaskFactory();
 
@@ -505,19 +506,14 @@ GanttMaster.prototype.loadTasks = function (tasks, selectedRow) {
   for (var i = 0; i < tasks.length; i++) {
     var task = tasks[i];
     if (!(task instanceof Task)) {
-	    //console.warn("GanttMaster509+"+new Date(task.start).format());
       var calculated_duration=recomputeDuration(task.start, task.end);
-	    //console.warn("GanttMaster511+"+new Date(task.start).format());
       var t = factory.build(task.id, task.name, task.code, task.level, task.start, calculated_duration, task.collapsed);
-	    //console.warn("GanttMaster513+"+new Date(t.start).format());
       for (var key in task) {
         if (key != "end" && key != "start")
           t[key] = task[key]; //copy all properties
       }
       task = t;
     }
-
-	  //console.warn("GanttMaster517+"+new Date(task.start).format());
     task.master = this; // in order to access controller from task
     this.tasks.push(task);  //append task at the end
   }
@@ -590,31 +586,29 @@ GanttMaster.prototype.getResource = function (resId) {
 
 
 GanttMaster.prototype.changeTaskDeps = function (task) {
-  console.warn("changeTaskDeps",task.start);
   return task.moveTo(task.start,false,true);
 };
 
 GanttMaster.prototype.changeTaskDates = function (task, start, end) {
-  console.warn("changeTaskDates",task, start, end);
+  //console.debug("changeTaskDates",task, start, end)
   return task.setPeriod(start, end);
 };
 
 
 GanttMaster.prototype.moveTask = function (task, newStart) {
-	console.warn("moveTask",task.start);
   return task.moveTo(newStart, true,true);
 };
 
 
 GanttMaster.prototype.taskIsChanged = function () {
-  console.warn("taskIsChanged");
+  //console.debug("taskIsChanged");
   var master = this;
 
   //refresh is executed only once every 50ms
   this.element.stopTime("gnnttaskIsChanged");
   //var profilerext = new Profiler("gm_taskIsChangedRequest");
   this.element.oneTime(50, "gnnttaskIsChanged", function () {
-    console.warn("task Is Changed real call to redraw");
+    //console.debug("task Is Changed real call to redraw");
     //var profiler = new Profiler("gm_taskIsChangedReal");
     master.redraw();
     master.element.trigger("gantt.redrawCompleted");
@@ -652,13 +646,13 @@ GanttMaster.prototype.checkButtonPermissions = function () {
 
 
 GanttMaster.prototype.redraw = function () {
-	console.warn("GanttMaster.redraw");
   this.editor.redraw();
   this.gantt.redraw();
+
 };
 
 GanttMaster.prototype.reset = function () {
-  console.warn("GanttMaster.prototype.reset");
+  //console.debug("GanttMaster.prototype.reset");
   this.tasks = [];
   this.links = [];
   this.deletedTaskIds = [];
@@ -731,7 +725,7 @@ GanttMaster.prototype.saveGantt = function (forTransaction) {
 
 
 GanttMaster.prototype.markUnChangedTasksAndAssignments=function(newProject){
-  console.warn("markUnChangedTasksAndAssignments");
+  //console.debug("markUnChangedTasksAndAssignments");
   //si controlla che ci sia qualcosa di cambiato, ovvero che ci sia l'undo stack
   if (this.__undoStack.length>0){
     var oldProject=JSON.parse(ge.__undoStack[0]);
@@ -813,7 +807,7 @@ GanttMaster.prototype.loadCollapsedTasks = function () {
 };
 
 GanttMaster.prototype.storeCollapsedTasks = function () {
-  console.warn("storeCollapsedTasks");
+  //console.debug("storeCollapsedTasks");
   if (localStorage) {
     var collTasks;
     if (!localStorage.getObject("TWPGanttCollTasks"))
@@ -841,7 +835,7 @@ GanttMaster.prototype.storeCollapsedTasks = function () {
 
 
 GanttMaster.prototype.updateLinks = function (task) {
-  console.warn("updateLinks",task);
+  //console.debug("updateLinks",task);
   //var prof= new Profiler("gm_updateLinks");
 
   // defines isLoop function
@@ -851,7 +845,7 @@ GanttMaster.prototype.updateLinks = function (task) {
     if (target == task) {
       return true;
     }
-	  console.warn("GanttMaster851+"+new Date(task.start).format());
+
     var sups = task.getSuperiors();
 
     //my parent' superiors are my superiors too
@@ -860,13 +854,13 @@ GanttMaster.prototype.updateLinks = function (task) {
       sups = sups.concat(p.getSuperiors());
       p = p.getParent();
     }
-	  console.warn("GanttMaster860+"+new Date(task.start).format());
+
     //my children superiors are my superiors too
     var chs = task.getChildren();
     for (var i = 0; i < chs.length; i++) {
       sups = sups.concat(chs[i].getSuperiors());
     }
-	  console.warn("GanttMaster866+"+new Date(task.start).format());
+
     var loop = false;
     //check superiors
     for (var i = 0; i < sups.length; i++) {
@@ -884,7 +878,7 @@ GanttMaster.prototype.updateLinks = function (task) {
         }
       }
     }
-	  console.warn("GanttMaster884+"+new Date(task.start).format());
+
     //check target parent
     var tpar = target.getParent();
     if (tpar) {
@@ -895,7 +889,7 @@ GanttMaster.prototype.updateLinks = function (task) {
         }
       }
     }
-	  console.warn("GanttMaster895+"+new Date(task.start).format());
+
     //prof.stop();
     return loop;
   }
@@ -908,7 +902,6 @@ GanttMaster.prototype.updateLinks = function (task) {
   var todoOk = true;
   if (task.depends) {
 
-	  console.warn("GanttMaster906+"+new Date(task.start).format());
     //cannot depend from an ancestor
     var parents = task.getParents();
     //cannot depend from descendants
@@ -962,14 +955,13 @@ GanttMaster.prototype.updateLinks = function (task) {
   }
   //prof.stop();
 
-	console.warn("GanttMaster959+"+new Date(task.start).format());
   return todoOk;
 };
 
 
 GanttMaster.prototype.moveUpCurrentTask = function () {
   var self = this;
-  console.warn("moveUpCurrentTask",self.currentTask)
+  //console.debug("moveUpCurrentTask",self.currentTask)
   if (self.currentTask) {
     if (!(self.permissions.canWrite  || self.currentTask.canWrite) || !self.permissions.canMoveUpDown )
     return;
@@ -982,7 +974,7 @@ GanttMaster.prototype.moveUpCurrentTask = function () {
 
 GanttMaster.prototype.moveDownCurrentTask = function () {
   var self = this;
-  console.warn("moveDownCurrentTask",self.currentTask)
+  //console.debug("moveDownCurrentTask",self.currentTask)
   if (self.currentTask) {
     if (!(self.permissions.canWrite  || self.currentTask.canWrite) || !self.permissions.canMoveUpDown )
     return;
@@ -1362,7 +1354,7 @@ GanttMaster.prototype.checkpoint = function () {
 //----------------------------- UNDO/REDO MANAGEMENT ---------------------------------%>
 
 GanttMaster.prototype.undo = function () {
-  console.warn("undo before:",this.__undoStack,this.__redoStack);
+  //console.debug("undo before:",this.__undoStack,this.__redoStack);
   if (this.__undoStack.length > 0) {
     var his = this.__undoStack.pop();
     this.__redoStack.push(JSON.stringify(this.saveGantt()));
@@ -1377,7 +1369,7 @@ GanttMaster.prototype.undo = function () {
 };
 
 GanttMaster.prototype.redo = function () {
-  console.warn("redo before:",undoStack,redoStack);
+  //console.debug("redo before:",undoStack,redoStack);
   if (this.__redoStack.length > 0) {
     var his = this.__redoStack.pop();
     this.__undoStack.push(JSON.stringify(this.saveGantt()));
@@ -1419,7 +1411,7 @@ GanttMaster.prototype.print = function () {
 
 GanttMaster.prototype.resize = function () {
   var self=this;
-  console.warn("GanttMaster.resize")
+  //console.debug("GanttMaster.resize")
   this.element.stopTime("resizeRedraw").oneTime(50,"resizeRedraw",function(){
     self.splitter.resize();
     self.numOfVisibleRows=Math.ceil(self.element.height()/self.rowHeight);
@@ -1437,7 +1429,7 @@ GanttMaster.prototype.scrolled = function (oldFirstRow) {
 
   //if scroll something
   if (newFirstRow!=oldFirstRow){
-    console.warn("Ganttalendar.scrolled oldFirstRow:"+oldFirstRow+" new firstScreenLine:"+newFirstRow);
+    //console.debug("Ganttalendar.scrolled oldFirstRow:"+oldFirstRow+" new firstScreenLine:"+newFirstRow);
 
     var collapsedDescendant = self.getCollapsedDescendant();
 
@@ -1650,7 +1642,7 @@ GanttMaster.prototype.computeCriticalPath = function () {
 
 //------------------------------------------- MANAGE CHANGE LOG INPUT ---------------------------------------------------
 GanttMaster.prototype.manageSaveRequired=function(ev, showSave) {
-  console.warn("manageSaveRequired", showSave);
+  //console.debug("manageSaveRequired", showSave);
 
   function checkChanges() {
     var changes = false;

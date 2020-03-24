@@ -25,7 +25,6 @@ use Combodo\iTop\Application\TwigBase\Twig\TwigHelper;
 class Gantt
 {
 	const MODULE_CODE = 'combodo-gantt-view';
-
 	const DEFAULT_TITLE = '';
 
 	protected $sTitle;
@@ -36,14 +35,20 @@ class Gantt
 	protected $sEndDate;
 	protected $sPercentage;
 	protected $sDependsOn;
+	protected $sStatus;
+	protected $sStatusActive;
+	protected $sStatusSuspended;
+	protected $sStatusWaiting;
+	protected $sStatusDone;
+	protected $sStatusFailed;
 	protected $sTargetDependsOn;
 	protected $sAdditionalInformation1;
 	protected $sAdditionalInformation2;
 	protected $bEditMode;
+	protected $bSaveAllowed;
 	protected $sParent;
 	protected $aParentFields;
 	protected $aScope;
-
 
 	/**
 	 * gantt constructor.
@@ -72,8 +77,14 @@ class Gantt
 		{
 			$this->aParentFields = new ParentFields($aScope['parent_fields']);
 		}
+		$this->sStatus = $aScope['status'];
+		$this->sStatusActive = $aScope['status_active'];
+		$this->sStatusSuspended = $aScope['status_suspended'];
+		$this->sStatusWaiting = $aScope['status_waiting'];
+		$this->sStatusDone = $aScope['status_done'];
+		$this->sStatusFailed = $aScope['status_failed'];
 		$this->aScope = $aScope;
-		$this->bSaveAllowed = false;//in first time fixed value
+		$this->bSaveAllowed = ($aScope['save_allowed']=="true");//in first time fixed value
 	}
 
 	public function GetGanttValues()
@@ -114,7 +125,10 @@ class Gantt
 		{
 			array_push($aFields, $this->sParent);
 		}
-
+		if ($this->sStatus != '')
+		{
+			array_push($aFields, $this->sStatus);
+		}
 		$oResultSql = new DBObjectSet($oQuery);
 		$oResultSql->OptimizeColumnLoad($aFields);
 		$sClass = $oResultSql->GetClass();
@@ -214,10 +228,45 @@ class Gantt
 		$aRow['description'] = "";
 		$aRow['code'] = "";
 		$aRow['level'] = $iLevel;
-		$aRow['status'] = "STATUS_ACTIVE";
+		if ($aFields->sStatus != null && $aFields->sStatus != '' )
+		{
+			$sStatus=$oRow->Get($aFields->sStatus);
+			if ($sStatus!= null)
+			{
+				$aRow['status'] = "STATUS_UNDEFINED";
+				if (in_array($sStatus, $aFields->sStatusDone))
+				{
+					$aRow['status'] = "STATUS_DONE";
+				}
+				if (in_array($sStatus, $aFields->sStatusFailed))
+				{
+					$aRow['status'] = "STATUS_FAILED";
+				}
+				if (in_array($sStatus, $aFields->sStatusSuspended))
+				{
+					$aRow['status'] = "STATUS_SUSPENDED";
+				}
+				if (in_array($sStatus, $aFields->sStatusWaiting))
+				{
+					$aRow['status'] = "STATUS_WAITING";
+				}
+				if (in_array($sStatus, $aFields->sStatusActive))
+				{
+					$aRow['status'] = "STATUS_ACTIVE";
+				}
+			}
+			else
+			{
+				$aRow['status'] = "STATUS_UNDEFINED";
+			}
+		}
+		else
+		{
+			$aRow['status'] = "STATUS_UNDEFINED";
+		}
 		if ($hasChild == false)
 		{
-			if (count($oRow->Get($aFields->sDependsOn)) == 0)
+			if (count($oRow->Get($aFields->sDependsOn)) == 0 || $aFields->sTargetDependsOn=='')
 			{
 				$aRow['dependson'] = [];
 			}
@@ -331,6 +380,7 @@ class Gantt
 		$aData['sScope'] = json_encode($this->aScope);
 		$aData['aDescription'] = $this->GetGanttDescription();
 		$aData['sAbsUrlModulesRoot'] = utils::GetAbsoluteUrlModulesRoot();
+		$aData['bPrintable']  = $oP->isPrintableVersion();
 
 		$aData['dateFormat'] = MetaModel::GetConfig()->Get('date_and_time_format')['default']['date'];
 		$aData['dateFormat'] = str_replace(array("y", "Y", "m", "d"), array("yy", "yyyy", "MM", "dd"), $aData['dateFormat']);
@@ -352,7 +402,12 @@ class Gantt
 		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.css');
 		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/platform.css');
 		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/gantt.css');
-		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/valueSlider/mb.slider.css');
+
+		if($oP->isPrintableVersion())
+		{
+			$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttPrint.css');
+			$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/valueSlider/mb.slider.css');
+		}
 		//JS
 		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/jquery.livequery.1.1.1.min.js');
 		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/jquery.timers.js?v=$sModuleVersion');
@@ -381,8 +436,9 @@ class Gantt
 		$aData = array('sId' => $sId);
 		$aData['sTitle'] = $this->sTitle;
 		$aData['bEditMode'] = $this->bEditMode;
-		$aData['bSaveAllowed'] = true;
-		//$aData['bSaveAllowed'] = isSaveAllowed($this->aScope['class_0'], $this->bSaveAllowed);
+		$aData['bPrintable']  = $oP->isPrintableVersion();
+		//$aData['bSaveAllowed'] = true;
+		$aData['bSaveAllowed'] = $this->isSaveAllowed($this->aScope['class'], $this->bSaveAllowed);
 		$aData['sScope'] = json_encode($this->aScope);
 		$aData['aDescription'] = $this->GetGanttDescription();
 		$aData['sAbsUrlModulesRoot'] = utils::GetAbsoluteUrlModulesRoot();
@@ -410,6 +466,7 @@ class ParentFields
 	public $sAdditionalInformation1;
 	public $sAdditionalInformation2;
 	public $sParent;
+	public $sStatus;
 	public $aParentFields;
 
 	/**
@@ -428,6 +485,7 @@ class ParentFields
 		$this->sAdditionalInformation2 = $aScope['additional_info2'];
 		$this->sParent = $aScope['parent'];
 		$this->sClass = $aScope['class'];
+		$this->sStatus = '';
 		if ($aScope['parent'] != null && $aScope['parent'] != '')
 		{
 			$this->aParentFields = new ParentFields($aScope['parent_fields']);

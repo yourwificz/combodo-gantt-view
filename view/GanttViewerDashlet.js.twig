@@ -9,8 +9,11 @@
 	    { url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/platform.css?v=$sModuleVersion", type: "text" },
 	    { url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.css?v=$sModuleVersion", type: "text" },
 	    { url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/gantt.css?v=$sModuleVersion", type: "text" },
-	    { url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/valueSlider/mb.slider.css?v=$sModuleVersion", type: "text" },
-	    // JS
+		{% if(bPrintable==1) %}
+			{ url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/ganttPrint.css?v=$sModuleVersion", type: "text"},
+			{ url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/valueSlider/mb.slider.css?v=$sModuleVersion", type: "text"},
+		{% endif %}
+		// JS
 	    { url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/jquery.livequery.1.1.1.min.js?v=$sModuleVersion", type: "script" },
 	    { url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/jquery.timers.js?v=$sModuleVersion", type: "script" },
 	    { url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/utilities.js?v=$sModuleVersion", type: "script" },
@@ -44,7 +47,13 @@
 	            .done(function(){
 	                if ( (aKBFilesToLoad[iKBCurrentIdx].type === 'text') && ($('head link[type="text/css"][href="' + aKBFilesToLoad[iKBCurrentIdx].url + '"]').length === 0) )
 	                {
-	                    $('<link rel="stylesheet" type="text/css" href="' + aKBFilesToLoad[iKBCurrentIdx].url + '" />').appendTo('head');
+	                	if(aKBFilesToLoad[iKBCurrentIdx].media) {
+			                $('<link rel="stylesheet" type="text/css" href="' + aKBFilesToLoad[iKBCurrentIdx].url + '" media="'+aKBFilesToLoad[iKBCurrentIdx].media+'"/>').appendTo('head');
+		                }
+	                	else
+		                {
+			                $('<link rel="stylesheet" type="text/css" href="' + aKBFilesToLoad[iKBCurrentIdx].url + '" />').appendTo('head');
+		                }
 	                }
 	            })
 	    )

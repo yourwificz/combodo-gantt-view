@@ -39,7 +39,9 @@ function fKBInitCallback() {
     delete ge.gantt.zoom;
 
     loadGanttFromServer(0,alert);
+
 }
+
 function loadGanttFromServer(taskId, callback) {
 //    console.warn('sScope:'+{{sScope|raw}});
     $.post('{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/ajax.php?operation=GetProject',
@@ -47,9 +49,22 @@ function loadGanttFromServer(taskId, callback) {
         .done(function(data){
             ge.loadProject(data);
             ge.checkpoint(); //empty the undo stack
-            var myHeight=Math.min( $(window).height() - $('#TWGanttArea').position().top, ge.rowHeight*data.tasks.length+60);
-            $('#TWGanttArea').height( myHeight);
+	        console.warn('bPrintable:{{bPrintable}}');
+	        {% if(bPrintable!=1)  %}
+		        var maxHeight=ge.rowHeight*data.tasks.length+60;
+	            var myHeight=Math.min( $(window).height() - $('#TWGanttArea').position().top, maxHeight);
+	            $('#TWGanttArea').height( myHeight);
+		        $('#TWGanttArea').css('max-height', maxHeight+'px');
+	            $('#TWGanttArea').find(".splitBox2").scrollLeft(700);
+
+		        //scrollTop: $(this).offset().top + $(this).height() / 2;
+	        {% else %}
+	            ge.isPrintable=true;
+	            ge.resize();
+	        {% endif %}
         });
+
+
 
 }
 

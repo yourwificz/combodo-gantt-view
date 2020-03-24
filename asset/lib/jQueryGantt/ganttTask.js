@@ -32,7 +32,6 @@ function TaskFactory() {
    */
   this.build = function (id, name, code, level, start, duration, collapsed) {
     // Set at beginning of day
-	  console.warn("new task");
     //var adjusted_start = computeStart(start);
     var calculated_end = computeEndByDuration(start, duration);
     return new Task(id, name, code, level, start, calculated_end, duration, collapsed);
@@ -58,7 +57,7 @@ function Task(id, name, code, level, start, end, duration, collapsed) {
   this.start = start;
   this.duration = duration;
   this.end = end;
-	//console.warn("GanttTask60+"+new Date(start).format());
+
   this.startIsMilestone = false;
   this.endIsMilestone = false;
 
@@ -110,7 +109,7 @@ Task.prototype.createAssignment = function (id, resourceId, roleId, effort) {
 
 //<%---------- SET PERIOD ---------------------- --%>
 Task.prototype.setPeriod = function (start, end) {
-  console.warn("setPeriod ",this.code,this.name,new Date(start), new Date(end));
+  //console.debug("setPeriod ",this.code,this.name,new Date(start), new Date(end));
   //var profilerSetPer = new Profiler("gt_setPeriodJS");
 	this.duration = recomputeDuration(this.start, this.end);
 	return true;
@@ -259,7 +258,7 @@ Task.prototype.setPeriod = function (start, end) {
 
 //<%---------- MOVE TO ---------------------- --%>
 Task.prototype.moveTo = function (start, ignoreMilestones, propagateToInferiors) {
-  console.warn("moveTo ",this.name,new Date(start),this.duration,ignoreMilestones);
+  //console.debug("moveTo ",this.name,new Date(start),this.duration,ignoreMilestones);
   //var profiler = new Profiler("gt_task_moveTo");
 
   if (start instanceof Date) {
@@ -286,8 +285,6 @@ Task.prototype.moveTo = function (start, ignoreMilestones, propagateToInferiors)
   if (!this.checkMilestonesConstraints(start,end,ignoreMilestones))
       return false;
 
-	//console.warn("GanttTask286+"+new Date(this.start).format());
-
   if (this.start != start || this.start != wantedStartMillis) {
     //in case of end is milestone it never changes!
     //if (!ignoreMilestones && this.endIsMilestone && end != this.end) {
@@ -303,7 +300,7 @@ Task.prototype.moveTo = function (start, ignoreMilestones, propagateToInferiors)
       this.master.setErrorOnTransaction("\"" + this.name + "\"\n" +GanttMaster.messages["CHANGE_OUT_OF_SCOPE"], this);
       return false;
     }
- // console.warn("GanttTask304+"+new Date(this.start).format());
+
 
     // bicch 22/4/2016: quando si sposta un task con child a cavallo di holidays, i figli devono essere shiftati in workingDays, non in millisecondi, altrimenti si cambiano le durate
     // when moving children you MUST consider WORKING days,
@@ -321,7 +318,6 @@ Task.prototype.moveTo = function (start, ignoreMilestones, propagateToInferiors)
       return false;
     }
 
-	//  console.warn("GanttTask321+"+new Date(this.start).format());
     if (propagateToInferiors) {
       this.propagateToInferiors(end);
       var todoOk = true;
@@ -334,13 +330,12 @@ Task.prototype.moveTo = function (start, ignoreMilestones, propagateToInferiors)
     }
   }
 
-	//console.warn("GanttTask335+"+new Date(this.start).format());
   return true;
 };
 
 
 Task.prototype.checkMilestonesConstraints = function (newStart,newEnd,ignoreMilestones) {
-	console.warn("checkMilestonesConstraints");
+
 //if start is milestone cannot be move
   if (!ignoreMilestones && (this.startIsMilestone && newStart != this.start  )) {
     //notify error
@@ -360,7 +355,7 @@ Task.prototype.checkMilestonesConstraints = function (newStart,newEnd,ignoreMile
 
 //<%---------- PROPAGATE TO INFERIORS ---------------------- --%>
 Task.prototype.propagateToInferiors = function (end) {
-  console.warn("propagateToInferiors "+this.name)
+  //console.debug("propagateToInferiors "+this.name)
   //and now propagate to inferiors
   var todoOk = true;
   var infs = this.getInferiors();
@@ -382,7 +377,6 @@ Task.prototype.propagateToInferiors = function (end) {
 
 //<%---------- COMPUTE START BY SUPERIORS ---------------------- --%>
 Task.prototype.computeStartBySuperiors = function (proposedStart) {
-	console.warn("computeStartBySuperiors");
   //if depends -> start is set to max end + lag of superior
   var supEnd=proposedStart;
   var sups = this.getSuperiors();
@@ -399,7 +393,7 @@ Task.prototype.computeStartBySuperiors = function (proposedStart) {
 
 
 function updateTree(task) {
-  console.warn("updateTree ",task.code,task.name, new Date(task.start), new Date(task.end));
+  //console.debug("updateTree ",task.code,task.name, new Date(task.start), new Date(task.end));
   var error;
 
   //try to enlarge parent
@@ -469,7 +463,6 @@ function updateTree(task) {
 
 
 Task.prototype.getChildrenBoudaries = function () {
-	console.warn("getChildrenBoudaries");
   var newStart = Infinity;
   var newEnd = -Infinity;
   var children = this.getChildren();
@@ -483,12 +476,12 @@ Task.prototype.getChildrenBoudaries = function () {
 
 //<%---------- CHANGE STATUS ---------------------- --%>
 Task.prototype.changeStatus = function (newStatus,forceStatusCheck) {
-  console.warn("changeStatus: "+this.name+" from "+this.status+" -> "+newStatus);
+  //console.debug("changeStatus: "+this.name+" from "+this.status+" -> "+newStatus);
 
   var cone = this.getDescendant();
 
   function propagateStatus(task, newStatus, manuallyChanged, propagateFromParent, propagateFromChildren) {
-    console.warn("propagateStatus",task.name, task.status,newStatus, manuallyChanged, propagateFromParent, propagateFromChildren);
+    //console.debug("propagateStatus",task.name, task.status,newStatus, manuallyChanged, propagateFromParent, propagateFromChildren);
     var oldStatus = task.status;
 
     //no changes exit
@@ -682,7 +675,7 @@ Task.prototype.changeStatus = function (newStatus,forceStatusCheck) {
 };
 
 Task.prototype.synchronizeStatus = function () {
-  console.warn("synchronizeStatus",this.name);
+  //console.debug("synchronizeStatus",this.name);
   var oldS = this.status;
   this.status = this.getParent()?this.getParent().status:"STATUS_UNDEFINED"; // di default si invalida lo stato mettendo quello del padre, in modo che inde/outd siano consistenti
   return this.changeStatus(oldS,true);
@@ -891,7 +884,7 @@ Task.prototype.setLatest = function (maxCost) {
 
 //<%------------------------------------------  INDENT/OUTDENT --------------------------------%>
 Task.prototype.indent = function () {
-  console.warn("indent", this);
+  //console.debug("indent", this);
   //a row above must exist
   var row = this.getRow();
 
@@ -961,7 +954,7 @@ Task.prototype.indent = function () {
 
 
 Task.prototype.outdent = function () {
-  console.warn("outdent", this);
+  //console.debug("outdent", this);
 
   //a level must be >1 -> cannot escape from root
   if (this.level <= 1)
@@ -1009,7 +1002,7 @@ Task.prototype.outdent = function () {
 
 //<%------------------------------------------  MOVE UP / MOVE DOWN --------------------------------%>
 Task.prototype.moveUp = function () {
-  console.warn("moveUp", this);
+  //console.debug("moveUp", this);
   var ret = false;
 
   //a row above must exist
@@ -1059,7 +1052,7 @@ Task.prototype.moveUp = function () {
 
 
 Task.prototype.moveDown = function () {
-  console.warn("moveDown", this);
+  //console.debug("moveDown", this);
 
   //a row below must exist, and cannot move root task
   var row = this.getRow();
@@ -1116,8 +1109,6 @@ Task.prototype.moveDown = function () {
 
 
 Task.prototype.canStatusBeChangedTo=function(newStatus) {
-
-	console.warn("canStatusBeChangedTo");
   //lo stato corrente è sempre ok
   if (newStatus==this.status)
     return true;

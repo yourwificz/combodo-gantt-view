@@ -139,7 +139,7 @@ function saveGanttOnServer() {
 //-------------------------------------------  Get project file as JSON (used for migrate project from gantt to Teamwork) ------------------------------------------------------
 function getFile() {
     $("#gimBaPrj").val(JSON.stringify(ge.saveProject()));
-    $("#gimmeBack").submit();
+    //$("#gimmeBack").submit();
     $("#gimBaPrj").val("");
 
     /*  var uriContent = "data:text/html;charset=utf-8," + encodeURIComponent(JSON.stringify(prj));
