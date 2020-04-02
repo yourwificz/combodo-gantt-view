@@ -234,23 +234,23 @@ class Gantt
 			if ($sStatus!= null)
 			{
 				$aRow['status'] = "STATUS_UNDEFINED";
-				if (in_array($sStatus, $aFields->sStatusDone))
+				if ($aFields->sStatusDone!='' && in_array($sStatus, $aFields->sStatusDone))
 				{
 					$aRow['status'] = "STATUS_DONE";
 				}
-				if (in_array($sStatus, $aFields->sStatusFailed))
+				if ($aFields->sStatusFailed!='' && in_array($sStatus, $aFields->sStatusFailed))
 				{
 					$aRow['status'] = "STATUS_FAILED";
 				}
-				if (in_array($sStatus, $aFields->sStatusSuspended))
+				if ($aFields->sStatusSuspended!='' && in_array($sStatus, $aFields->sStatusSuspended))
 				{
 					$aRow['status'] = "STATUS_SUSPENDED";
 				}
-				if (in_array($sStatus, $aFields->sStatusWaiting))
+				if ($aFields->sStatusWaiting!='' && in_array($sStatus, $aFields->sStatusWaiting))
 				{
 					$aRow['status'] = "STATUS_WAITING";
 				}
-				if (in_array($sStatus, $aFields->sStatusActive))
+				if ($aFields->sStatusActive!='' && in_array($sStatus, $aFields->sStatusActive))
 				{
 					$aRow['status'] = "STATUS_ACTIVE";
 				}

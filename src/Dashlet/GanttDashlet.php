@@ -65,11 +65,11 @@ class GanttDashlet extends Dashlet
 		$this->aProperties['additional_info2_0'] = '';
 		$this->aProperties['percentage_0'] = '';
 		$this->aProperties['status_0'] = '';
-		$this->aProperties['status_active_0'] = array();
-		$this->aProperties['status_suspended_0'] = array();
-		$this->aProperties['status_waiting_0'] = array();
-		$this->aProperties['status_done_0'] = array();
-		$this->aProperties['status_failed_0'] = array();
+		$this->aProperties['status_active_0'] = '';
+		$this->aProperties['status_suspended_0'] = '';
+		$this->aProperties['status_waiting_0'] = '';
+		$this->aProperties['status_done_0'] = '';
+		$this->aProperties['status_failed_0'] = '';
 		//STATUS_UNDEFINED for others
 		$this->aProperties['parent_0'] = '';
 		$this->aProperties['class_1'] = '';
@@ -286,34 +286,31 @@ class GanttDashlet extends Dashlet
 					$oField->SetReadOnly();
 					$oForm->AddField($oField);
 
-					$oField = new DesignerHiddenField('status_'.$idx, '', $sAttributeStatus);
-					$oForm->AddField($oField);
-
-					$oField = new DesignerComboField('status_active_'.$idx, Dict::S('GanttDashlet/Prop:Status:active'),
+					$oField = new DesignerComboField('status_active_'.$idx, $sAttributeStatus. ' '.Dict::S('GanttDashlet/Prop:Status:active'),
 						$this->aProperties['status_active_'.$idx]);
 					$oField->MultipleSelection(true);
 					$oField->SetAllowedValues($aTargetStatus);
 					$oForm->AddField($oField);
 
-					$oField = new DesignerComboField('status_suspended_'.$idx, Dict::S('GanttDashlet/Prop:Status:suspended'),
+					$oField = new DesignerComboField('status_suspended_'.$idx, $sAttributeStatus. ' '.Dict::S('GanttDashlet/Prop:Status:suspended'),
 						$this->aProperties['status_suspended_'.$idx]);
 					$oField->MultipleSelection(true);
 					$oField->SetAllowedValues($aTargetStatus);
 					$oForm->AddField($oField);
 
-					$oField = new DesignerComboField('status_done_'.$idx, Dict::S('GanttDashlet/Prop:Status:done'),
+					$oField = new DesignerComboField('status_done_'.$idx, $sAttributeStatus. ' '.Dict::S('GanttDashlet/Prop:Status:done'),
 						$this->aProperties['status_done_'.$idx]);
 					$oField->MultipleSelection(true);
 					$oField->SetAllowedValues($aTargetStatus);
 					$oForm->AddField($oField);
 
-					$oField = new DesignerComboField('status_waiting_'.$idx, Dict::S('GanttDashlet/Prop:Status:waiting'),
+					$oField = new DesignerComboField('status_waiting_'.$idx, $sAttributeStatus. ' '.Dict::S('GanttDashlet/Prop:Status:waiting'),
 						$this->aProperties['status_waiting_'.$idx]);
 					$oField->MultipleSelection(true);
 					$oField->SetAllowedValues($aTargetStatus);
 					$oForm->AddField($oField);
 
-					$oField = new DesignerComboField('status_failed_'.$idx, Dict::S('GanttDashlet/Prop:Status:failed'),
+					$oField = new DesignerComboField('status_failed_'.$idx, $sAttributeStatus. ' '.Dict::S('GanttDashlet/Prop:Status:failed'),
 						$this->aProperties['status_failed_'.$idx]);
 					$oField->MultipleSelection(true);
 					$oField->SetAllowedValues($aTargetStatus);
@@ -324,9 +321,6 @@ class GanttDashlet extends Dashlet
 					$aTargetStatus = MetaModel::EnumTransitions($sClass, $sAttributeStatus);
 					$oField = new DesignerTextField('status_'.$idx, '', $sAttributeStatus);
 					$oField->SetReadOnly();
-					$oForm->AddField($oField);
-
-					$oField = new DesignerHiddenField('status_'.$idx, '', $sAttributeStatus);
 					$oForm->AddField($oField);
 
 					$oField = new DesignerComboField('status_active_'.$idx, Dict::S('GanttDashlet/Prop:Status:active'),
