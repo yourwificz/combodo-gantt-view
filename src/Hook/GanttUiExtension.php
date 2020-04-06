@@ -20,7 +20,7 @@
 /**
  * Class GanttUIextension
  *
- * Used to loaded resources necessary for kanban display and edition (dashboard editor)
+ * Used to loaded resources necessary for Gantt display and edition (dashboard editor)
  */
 class GanttUiExtension implements iPageUIExtension
 {
@@ -31,7 +31,7 @@ class GanttUiExtension implements iPageUIExtension
     public function GetNorthPaneHtml(\iTopWebPage $oPage)
     {
     	// SCSS files can't be loaded asynchroniously before of a bug in the output() method prior to iTop 2.6
-	    $oPage->add_saas('env-'.utils::GetCurrentEnvironment().'/'.Kanban::MODULE_CODE.'/asset/css/style.scss');
+	    $oPage->add_saas('env-'.utils::GetCurrentEnvironment().'/'.Gantt::MODULE_CODE.'/asset/css/style.scss');
 
     }
 
