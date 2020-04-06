@@ -22,7 +22,7 @@
  *
  * Used to loaded resources necessary for kanban display and edition (dashboard editor)
  */
-class GanttUIextension implements iPageUIExtension
+class GanttUiExtension implements iPageUIExtension
 {
 
     /**
