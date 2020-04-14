@@ -152,7 +152,7 @@ class Gantt
 					{
 						if ($canWrite)
 						{
-							$iFlags = MetaModel::GetAttributeFlags($sClass, $oObj->GetState(), $this->sStartDate);
+							$iFlags =  $oObj->GetAttributeFlags($this->sStartDate);
 							if (($iFlags & OPT_ATT_READONLY) === OPT_ATT_READONLY
 								|| ($iFlags & OPT_ATT_SLAVE) === OPT_ATT_SLAVE
 								|| ($iFlags & OPT_ATT_HIDDEN) === OPT_ATT_HIDDEN)
@@ -171,8 +171,7 @@ class Gantt
 								$canWriteParent = $this->bSaveAllowed;
 								if ($canWriteParent)
 								{
-									$iFlags = MetaModel::GetAttributeFlags($aFieldsParent2->sClass, $oObjParent->GetState(),
-										$aFieldsParent2->sStartDate);
+									$iFlags = $oObjParent->GetAttributeFlags($aFieldsParent2->sStartDate);
 									if (($iFlags & OPT_ATT_READONLY) === OPT_ATT_READONLY
 										|| ($iFlags & OPT_ATT_SLAVE) === OPT_ATT_SLAVE
 										|| ($iFlags & OPT_ATT_HIDDEN) === OPT_ATT_HIDDEN)
