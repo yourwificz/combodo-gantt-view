@@ -30,24 +30,24 @@
 			<table class="gdfTable" cellspacing="0" cellpadding="0">
 				<thead>
 					<tr style="height:40px">
-						<th class="gdfColHeader gdfResizable" style="min-width:100px;">{{ aDescription['attr_label'] }}</th>
+						<th class="gdfColHeader gdfResizable" style="min-width:100px;width:150px;">{{ aDescription['attr_label'] }}</th>
 						{% if ( aDescription['attr_add_info1']!='' ) %}
-							<th class="gdfColHeader gdfResizable" style="min-width:100px;">{{ aDescription['attr_add_info1'] }}</th>
+							<th class="gdfColHeader gdfResizable" style="min-width:100px;width:150px;">{{ aDescription['attr_add_info1'] }}</th>
 						{% endif %}
 						{% if aDescription['attr_add_info2']!='' %}
-							<th class="gdfColHeader gdfResizable" style="min-width:100px;">{{ aDescription['attr_add_info2'] }}</th>
+							<th class="gdfColHeader gdfResizable" style="min-width:100px;width:150px;">{{ aDescription['attr_add_info2'] }}</th>
 						{% endif %}
-						<th class="gdfColHeader gdfResizable" style="min-width:80px;">{{ aDescription['attr_start_date'] }}</th>
-						<th class="gdfColHeader gdfResizable" style="min-width:80px;">{{ aDescription['attr_end_date'] }}</th>
-						<th class="gdfColHeader gdfResizable" style="min-width:20px;">%</th>
+						<th class="gdfColHeader gdfResizable" style="min-width:80px;width:80px;">{{ aDescription['attr_start_date'] }}</th>
+						<th class="gdfColHeader gdfResizable" style="min-width:80px;width:80px;">{{ aDescription['attr_end_date'] }}</th>
+						<th class="gdfColHeader gdfResizable" style="min-width:20px;width:20px;">%</th>
 						{% if aDescription['attr_add_info1']=='' %}
-							<td class="gdfColHeader gdfResizable" style="min-width:10px;"></td>
+							<td class="gdfColHeader gdfResizable" style="min-width:10px;width:10px;"></td>
 						{% endif %}
 						{% if aDescription['attr_add_info2']=='' %}
-							<td class="gdfColHeader gdfResizable" style="min-width:10px;"></td>
+							<td class="gdfColHeader gdfResizable" style="min-width:10px;width:10px;"></td>
 						{% endif %}
-						<th class="gdfColHeader gdfResizable" style="min-width:10px;"></th>
-						<th class="gdfColHeader gdfResizable" style="min-width:100px; text-align: left; padding-left: 10px;"></th>
+						<th class="gdfColHeader gdfResizable" style="min-width:10px;width:10px;"></th>
+						<th class="gdfColHeader gdfResizable" style="min-width:100px;width:100px; text-align: left; padding-left: 10px;"></th>
 					</tr>
 				</thead>
 			</table>

@@ -1,10 +1,23 @@
 {# @copyright   Copyright (C) 2010-2020 Combodo SARL #}
 {# @license     http://opensource.org/licenses/AGPL-3.0 #}
+{% if listeStatus %}
+	{% for  key, value in listeStatus %}
+		{% if  key=='' %}
+			$("<style type='text/css'> .taskStatus{ background-color: {{ value.backgroundcolor }};color:{{ value.color }}; } </style>").appendTo("head");
+			$("<style type='text/css'> .colorByStatus .taskStatusSVG{ fill: {{ value.backgroundcolor }}; } </style>").appendTo("head");
+			$("<style type='text/css'> .colorByStatus .taskStatusSVG .textPerc{ fill:{{ value.color }}; } </style>").appendTo("head");
+		{% else %}
+			$("<style type='text/css'> .taskStatus[status={{key}}]{ background-color: {{ value.backgroundcolor }};color:{{ value.color }}; } </style>").appendTo("head");
+			$("<style type='text/css'> .colorByStatus .taskStatusSVG[status={{key}}]{ fill: {{ value.backgroundcolor }}; } </style>").appendTo("head");
+			$("<style type='text/css'> .colorByStatus .taskStatusSVG[status={{key}}] .textPerc{ fill:{{ value.color }}; } </style>").appendTo("head");
+		{%  endif %}
+	{% endfor %}
+{% endif %}
 
 {% block loadJS %}{% endblock %}
 
 var ge;
-function fKBInitCallback() {
+function fGtInitCallback() {
     var canWrite=true; //this is the default for test purposes
 
     // here starts gantt initialization

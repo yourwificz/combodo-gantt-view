@@ -1,9 +1,11 @@
 {# @copyright   Copyright (C) 2010-2020 Combodo SARL #}
 {# @license     http://opensource.org/licenses/AGPL-3.0 #}
 {% extends  './GanttViewer.js.twig' %}
+
+
 {% block loadJS %}
 
-	var aKBFilesToLoad = [
+	var aGtFilesToLoad = [
 
 	    // CSS
 	    { url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/platform.css?v=$sModuleVersion", type: "text" },
@@ -34,40 +36,40 @@
 	    { url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/ganttGridEditor.js?v=$sModuleVersion", type: "script" },
 	    { url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/ganttMaster.js?v=$sModuleVersion", type: "script" },
 	];
-	var iKBCurrentIdx = 0;
-	var iKBFilesToLoadCount = aKBFilesToLoad.length;
-	var fKBLoadScript = function(){
+	var iGtCurrentIdx = 0;
+	var iGtFilesToLoadCount = aGtFilesToLoad.length;
+	var fGtLoadScript = function(){
 
 	    $.when(
 	        $.ajax({
-	            url: aKBFilesToLoad[iKBCurrentIdx].url,
-	            dataType: aKBFilesToLoad[iKBCurrentIdx].type,
+	            url: aGtFilesToLoad[iGtCurrentIdx].url,
+	            dataType: aGtFilesToLoad[iGtCurrentIdx].type,
 	            cache: true
 	        })
 	            .done(function(){
-	                if ( (aKBFilesToLoad[iKBCurrentIdx].type === 'text') && ($('head link[type="text/css"][href="' + aKBFilesToLoad[iKBCurrentIdx].url + '"]').length === 0) )
+	                if ( (aGtFilesToLoad[iGtCurrentIdx].type === 'text') && ($('head link[type="text/css"][href="' + aGtFilesToLoad[iGtCurrentIdx].url + '"]').length === 0) )
 	                {
-	                	if(aKBFilesToLoad[iKBCurrentIdx].media) {
-			                $('<link rel="stylesheet" type="text/css" href="' + aKBFilesToLoad[iKBCurrentIdx].url + '" media="'+aKBFilesToLoad[iKBCurrentIdx].media+'"/>').appendTo('head');
+	                	if(aGtFilesToLoad[iGtCurrentIdx].media) {
+			                $('<link rel="stylesheet" type="text/css" href="' + aGtFilesToLoad[iGtCurrentIdx].url + '" media="'+aGtFilesToLoad[iGtCurrentIdx].media+'"/>').appendTo('head');
 		                }
 	                	else
 		                {
-			                $('<link rel="stylesheet" type="text/css" href="' + aKBFilesToLoad[iKBCurrentIdx].url + '" />').appendTo('head');
+			                $('<link rel="stylesheet" type="text/css" href="' + aGtFilesToLoad[iGtCurrentIdx].url + '" />').appendTo('head');
 		                }
 	                }
 	            })
 	    )
 	        .then(function(){
-	            iKBCurrentIdx++;
-	            if (iKBCurrentIdx !== iKBFilesToLoadCount)
+	            iGtCurrentIdx++;
+	            if (iGtCurrentIdx !== iGtFilesToLoadCount)
 	            {
-	                fKBLoadScript();
+	                fGtLoadScript();
 	            }
 	            else
 	            {
-	                fKBInitCallback();
+	                fGtInitCallback();
 	            }
 	        });
 	};
-	fKBLoadScript();
+	fGtLoadScript();
 {% endblock %}

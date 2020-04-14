@@ -29,10 +29,11 @@ function TaskFactory() {
 
   /**
    * Build a new Task
+   * duration is here in day
    */
   this.build = function (id, name, code, level, start, duration, collapsed) {
     // Set at beginning of day
-    //var adjusted_start = computeStart(start);
+    var adjusted_start = computeStart(start);
     var calculated_end = computeEndByDuration(start, duration);
     return new Task(id, name, code, level, start, calculated_end, duration, collapsed);
 

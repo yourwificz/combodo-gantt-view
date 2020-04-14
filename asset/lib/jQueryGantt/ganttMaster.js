@@ -506,8 +506,8 @@ GanttMaster.prototype.loadTasks = function (tasks, selectedRow) {
   for (var i = 0; i < tasks.length; i++) {
     var task = tasks[i];
     if (!(task instanceof Task)) {
-      var calculated_duration=recomputeDuration(task.start, task.end);
-      var t = factory.build(task.id, task.name, task.code, task.level, task.start, calculated_duration, task.collapsed);
+	   var t = new Task(task.id, task.name, task.code, task.level, task.start, task.end, task.duration, task.collapsed);
+	    //var t = factory.build(task.id, task.name, task.code, task.level, task.start, task.duration, task.collapsed);
       for (var key in task) {
         if (key != "end" && key != "start")
           t[key] = task[key]; //copy all properties
