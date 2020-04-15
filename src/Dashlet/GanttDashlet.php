@@ -337,33 +337,71 @@ class GanttDashlet extends Dashlet
 
 		return $oField;
 	}
-
+	private function GetDefaultAttributes($sClass, $sAttribute)
+	{
+		$sName="";
+		$aClasses = MetaModel::GetConfig()->GetModuleSetting(Gantt::MODULE_CODE, Gantt::MODULE_SETTING_CLASSES);
+		while (!isset($aClasses[$sClass]) && !MetaModel::IsRootClass($sClass))
+		{
+			$sClass = MetaModel::GetParentClass($sClass);
+		}
+		if (isset($aClasses[$sClass]) && isset($aClasses[$sClass][$sAttribute]))
+		{
+			$sName = $aClasses[$sClass][$sAttribute];
+		}
+		return $sName;
+	}
 	public function Update($aValues, $aUpdatedFields)
 	{
 		if (in_array('oql', $aUpdatedFields))
 		{
 			try
 			{
-				$sCurrQuery = $aValues['oql'];
-				$oCurrSearch = $this->oModelReflection->GetQuery($sCurrQuery);
-				$sCurrClass = $oCurrSearch->GetClass();
+				$sCurrClass ='';
+				$sPrevClass ='';
+				try
+				{
 
-				$sPrevQuery = $this->aProperties['oql'];
-				$oPrevSearch = $this->oModelReflection->GetQuery($sPrevQuery);
-				$sPrevClass = $oPrevSearch->GetClass();
-
+					$sCurrQuery = $aValues['oql'];
+					$oCurrSearch = $this->oModelReflection->GetQuery($sCurrQuery);
+					$sCurrClass = $oCurrSearch->GetClass();
+				}
+				catch (Exception $e)
+				{
+					$sCurrClass ='';
+				}
+				try
+				{
+					$sPrevQuery = $this->aProperties['oql'];
+					$oPrevSearch = $this->oModelReflection->GetQuery($sPrevQuery);
+					$sPrevClass = $oPrevSearch->GetClass();
+				}
+				catch (Exception $e)
+				{
+					$sPrevClass ='';
+				}
 				if ($sCurrClass != $sPrevClass)
 				{
 					$this->bFormRedrawNeeded = true;
+					if($sCurrClass!="")
+					{
+						$this->aProperties['depends_on'] = $this->GetDefaultAttributes($sCurrClass, 'depends_on');
+						$this->aProperties['label_0'] = $this->GetDefaultAttributes($sCurrClass, 'name');
+						$this->aProperties['start_date_0'] = $this->GetDefaultAttributes($sCurrClass, 'start_date');
+						$this->aProperties['end_date_0'] = $this->GetDefaultAttributes($sCurrClass, 'end_date');
+						$this->aProperties['percentage_0'] = $this->GetDefaultAttributes($sCurrClass, 'completion');
+					}
+					else{
+						$this->aProperties['depends_on'] = '';
+						$this->aProperties['label_0'] = '';
+						$this->aProperties['start_date_0'] = '';
+						$this->aProperties['end_date_0'] = '';
+						$this->aProperties['percentage_0'] = '';
+					}
 					// wrong but not necessary - unset($aUpdatedFields['group_by']);
-					$this->aProperties['depends_on'] = '';
 					$this->aProperties['target_depends_on'] = '';
-					$this->aProperties['label_0'] = '';
-					$this->aProperties['start_date_0'] = '';
-					$this->aProperties['end_date_0'] = '';
 					$this->aProperties['additional_info1_0'] = '';
 					$this->aProperties['additional_info2_0'] = '';
-					$this->aProperties['percentage_0'] = '';
 					$this->aProperties['parent_0'] = '';
 					$this->aProperties['class_0'] = $sCurrClass;
 					$aValues['class_0'] = $sCurrClass;

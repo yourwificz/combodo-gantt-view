@@ -53,6 +53,11 @@ SetupWebPage::AddModule(
 						'backgroundcolor' => '#159119',
 						'color' => '#fff',
 					),
+					'name' => 'title',
+					'start_date' => 'start_date',
+					'end_date' => 'close_date',
+					'completion' => '',
+					'depends_on' => 'parent_request_id',
 					'colored_field' => 'status',
 					'values' => array(
 						'new' => array('backgroundcolor' => '#1591FF', 'color' => '#fff'),

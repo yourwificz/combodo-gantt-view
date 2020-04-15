@@ -363,12 +363,9 @@ class Gantt
 		{
 			$sClass = MetaModel::GetParentClass($sClass);
 		}
-		if (in_array($sClass, $aClasses))
+		if (isset($aClasses[$sClass]) && isset($aClasses[$sClass][static::MODULE_SETTING_COLORED_FIELD]))
 		{
-			if (isset($aClasses[$sClass][static::MODULE_SETTING_COLORED_FIELD]))
-			{
-				$sName = $aClasses[$sClass][static::MODULE_SETTING_COLORED_FIELD];
-			}
+			$sName = $aClasses[$sClass][static::MODULE_SETTING_COLORED_FIELD];
 		}
 		if ($sName == '')
 		{
