@@ -182,11 +182,11 @@ table styles
 -------------------------------------------------------
 */
 
-.table {
+.splitterContainer  .table {
   width: 100%;
 }
 
-TH, .tableHeader {
+.splitterContainer TH, .splitterContainer .tableHeader {
   font-weight: normal;
   color: #555;
   border: none;
@@ -194,12 +194,12 @@ TH, .tableHeader {
   padding: 2px
 }
 
-.list td{
+.splitterContainer .list td{
   border-bottom: 1px solid #dedede;
   padding: 5px 0;
 }
 
-.list th {
+.splitterContainer .list th {
   padding: 5px 2px
 }
 
