@@ -46,7 +46,7 @@ class GanttParentFields
 		$this->sAdditionalInformation2 = $aScope['additional_info2'];
 		$this->sParent = $aScope['parent'];
 		$this->sClass = $aScope['class'];
-		$this->sStatus = '';
+		$this->sStatus = $aScope['status'];
 		if ($aScope['parent'] != null && $aScope['parent'] != '')
 		{
 			$this->aParentFields = new GanttParentFields($aScope['parent_fields']);

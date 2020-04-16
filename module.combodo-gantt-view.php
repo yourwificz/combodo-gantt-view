@@ -42,40 +42,7 @@ SetupWebPage::AddModule(
 
 		// Default settings
 		//
-		'settings' => array(
-			'default_colors' => array(
-				'backgroundcolor' => '#159119',
-				'color' => '#fff',
-			),
-			'classes' => array(
-				'UserRequest' => array(
-					'default_colors' => array(
-						'backgroundcolor' => '#159119',
-						'color' => '#fff',
-					),
-					'name' => 'title',
-					'start_date' => 'start_date',
-					'end_date' => 'close_date',
-					'completion' => '',
-					'depends_on' => 'parent_request_id',
-					'colored_field' => 'status',
-					'values' => array(
-						'new' => array('backgroundcolor' => '#1591FF', 'color' => '#fff'),
-						'escalated_tto' => array('backgroundcolor' => '#FF9F33', 'color' => '#fff'),
-						'escalated_ttr' => array('backgroundcolor' => '#FF9F88', 'color' => '#fff'),
-						'assigned' => array('backgroundcolor' => '#159119', 'color' => '#fff'),
-						'waiting_for_approval' => array('backgroundcolor' => '#4499F9', 'color' => '#fff'),
-						'approved' => array('backgroundcolor' => '#159119', 'color' => '#fff'),
-						'rejected' => array('backgroundcolor' => '#FF9F33', 'color' => '#fff'),
-						'pending' => array('backgroundcolor' => '#FF9F44', 'color' => '#fff'),
-						'dispatched' => array('backgroundcolor' => '#FF9F55', 'color' => '#fff'),
-						'redispatched' => array('backgroundcolor' => '#FF9F66', 'color' => '#fff'),
-						'closed' => array('backgroundcolor' => '#159180', 'color' => '#fff'),
-						'resolved' => array('backgroundcolor' => '#939325', 'color' => '#fff'),
-					),
-				),
-			),
-		),
+		'settings' => array(),
 	)
 );
 

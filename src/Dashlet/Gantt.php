@@ -333,11 +333,12 @@ class Gantt
 		return $aHandlerOptions;
 	}
 
-	private function GetListeColorsByStatus($sClass)
+	private function GetListeColorsByStatus()
 	{
+		$sClass=$this->aScope['class'];
 		$aColorsByStatus = array();
-		$aDefaultColors = MetaModel::GetConfig()->GetModuleSetting(static::MODULE_CODE, static::MODULE_SETTING_DEFAULT_COLORS);
-		$aClasses = MetaModel::GetConfig()->GetModuleSetting(static::MODULE_CODE, static::MODULE_SETTING_CLASSES);
+		$aDefaultColors = MetaModel::GetModuleSetting(static::MODULE_CODE, static::MODULE_SETTING_DEFAULT_COLORS);
+		$aClasses = MetaModel::GetModuleSetting(static::MODULE_CODE, static::MODULE_SETTING_CLASSES);
 		while (!isset($aClasses[$sClass]) && !MetaModel::IsRootClass($sClass))
 		{
 			$sClass = MetaModel::GetParentClass($sClass);
@@ -351,6 +352,19 @@ class Gantt
 			$aColorsByStatus = $aClasses[$sClass]['values'];
 		}
 		$aColorsByStatus[''] = $aDefaultColors;
+		if(isset($this->aParentFields) && isset($this->aParentFields->sClass))
+		{
+			$sClass=$this->aParentFields->sClass;
+			$aClasses = MetaModel::GetModuleSetting(static::MODULE_CODE, static::MODULE_SETTING_CLASSES);
+			while (!isset($aClasses[$sClass]) && !MetaModel::IsRootClass($sClass))
+			{
+				$sClass = MetaModel::GetParentClass($sClass);
+			}
+			if (isset($aClasses[$sClass]))
+			{
+				$aColorsByStatus = array_merge($aClasses[$sClass]['values'], $aColorsByStatus);
+			}
+		}
 
 		return $aColorsByStatus;
 	}
@@ -358,7 +372,7 @@ class Gantt
 	public static function GetNameOfStatusField($sClass)
 	{
 		$sName = '';
-		$aClasses = MetaModel::GetConfig()->GetModuleSetting(static::MODULE_CODE, static::MODULE_SETTING_CLASSES);
+		$aClasses = MetaModel::GetModuleSetting(static::MODULE_CODE, static::MODULE_SETTING_CLASSES);
 		while (!isset($aClasses[$sClass]) && !MetaModel::IsRootClass($sClass))
 		{
 			$sClass = MetaModel::GetParentClass($sClass);
@@ -397,7 +411,7 @@ class Gantt
 
 		$aData['dateFormat'] = MetaModel::GetConfig()->Get('date_and_time_format')['default']['date'];
 		$aData['dateFormat'] = str_replace(array("y", "Y", "m", "d"), array("yy", "yyyy", "MM", "dd"), $aData['dateFormat']);
-		$aData['listeStatus'] = $this->GetListeColorsByStatus($this->aScope['class']);
+		$aData['listeStatus'] = $this->GetListeColorsByStatus();
 
 		$oP->add_twig_template(MODULESROOT.'combodo-gantt-view/view', 'GanttViewerDashlet', $aData);
 	}
@@ -459,7 +473,7 @@ class Gantt
 		$aData['aDescription'] = $this->GetGanttDescription();
 		$aData['sAbsUrlModulesRoot'] = utils::GetAbsoluteUrlModulesRoot();
 		$aData['dateFormat'] = "yy-MM-dd";
-		$aData['listeStatus'] = $this->GetListeColorsByStatus($this->aScope['class']);
+		$aData['listeStatus'] = $this->GetListeColorsByStatus();
 
 		TwigHelper::RenderIntoPage($oP, MODULESROOT.'combodo-gantt-view/view', 'GanttViewer', $aData);
 	}

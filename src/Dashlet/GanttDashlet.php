@@ -70,6 +70,7 @@ class GanttDashlet extends Dashlet
 		$this->aProperties['label_1'] = '';
 		$this->aProperties['start_date_1'] = '';
 		$this->aProperties['end_date_1'] = '';
+		$this->aProperties['status_1'] = '';
 		$this->aProperties['additional_info1_1'] = '';
 		$this->aProperties['additional_info2_1'] = '';
 		$this->aProperties['percentage_1'] = '';
@@ -116,7 +117,7 @@ class GanttDashlet extends Dashlet
 			$aExtraParams['this->class'] = get_class($oObj);
 			$aExtraParams['this->id'] = $oObj->GetKey();
 		}
-		$aScope['extra_params'] =$aExtraParams;
+		$aScope['extra_params'] = $aExtraParams;
 
 		$oView = new Gantt($aScope, $bEditMode);
 		$sViewId = 'gantt_'.$this->sId.($bEditMode ? '_edit' : ''); // make a unique id (edition occuring in the same DOM)
@@ -241,7 +242,7 @@ class GanttDashlet extends Dashlet
 
 			if ($idx != 0 && $sClass != null)
 			{
-				$oForm->StartFieldSet(Dict::Format('GanttDashlet/Prop:ParentInformations', ($idx)));
+				$oForm->StartFieldSet(Dict::Format('GanttDashlet/Prop:GroupByInformations', ($idx)));
 				$oField = new DesignerTextField('class_'.$idx, '', $sClass);
 				$oField->SetReadOnly();
 				$oForm->AddField($oField);
@@ -268,13 +269,17 @@ class GanttDashlet extends Dashlet
 			$oForm->AddField($this->DisplayDesignerComboField('percentage_'.$idx, Dict::S('GanttDashlet/Prop:Percentage'),
 				$this->aProperties['percentage_'.$idx], $aNumberField, ($sClass != null), false));
 
-			if ($idx == 0 )
+			//status_attr
+			if($sClass!='')
 			{
-				//status_attr
-				$oField = new DesignerTextField('status_'.$idx, '',Gantt::GetNameOfStatusField($sClass));
+				$oField = new DesignerTextField('status_'.$idx, Dict::S('GanttDashlet/Prop:ColoredField'), Gantt::GetNameOfStatusField($sClass));
 				$oField->SetReadOnly();
 				$oForm->AddField($oField);
-
+			}
+			else
+			{
+				$oField = new DesignerHiddenField('status_'.$idx, '', '');
+				$oForm->AddField($oField);
 			}
 
 			//additional_info
@@ -337,10 +342,14 @@ class GanttDashlet extends Dashlet
 
 		return $oField;
 	}
+
+	/*
+	 * Get default attribute from xml params
+	 */
 	private function GetDefaultAttributes($sClass, $sAttribute)
 	{
-		$sName="";
-		$aClasses = MetaModel::GetConfig()->GetModuleSetting(Gantt::MODULE_CODE, Gantt::MODULE_SETTING_CLASSES);
+		$sName = "";
+		$aClasses = MetaModel::GetModuleSetting(Gantt::MODULE_CODE, Gantt::MODULE_SETTING_CLASSES);
 		while (!isset($aClasses[$sClass]) && !MetaModel::IsRootClass($sClass))
 		{
 			$sClass = MetaModel::GetParentClass($sClass);
@@ -349,26 +358,27 @@ class GanttDashlet extends Dashlet
 		{
 			$sName = $aClasses[$sClass][$sAttribute];
 		}
+
 		return $sName;
 	}
+
 	public function Update($aValues, $aUpdatedFields)
 	{
 		if (in_array('oql', $aUpdatedFields))
 		{
 			try
 			{
-				$sCurrClass ='';
-				$sPrevClass ='';
+				$sCurrClass = '';
+				$sPrevClass = '';
 				try
 				{
-
 					$sCurrQuery = $aValues['oql'];
 					$oCurrSearch = $this->oModelReflection->GetQuery($sCurrQuery);
 					$sCurrClass = $oCurrSearch->GetClass();
 				}
 				catch (Exception $e)
 				{
-					$sCurrClass ='';
+					$sCurrClass = '';
 				}
 				try
 				{
@@ -378,31 +388,69 @@ class GanttDashlet extends Dashlet
 				}
 				catch (Exception $e)
 				{
-					$sPrevClass ='';
+					$sPrevClass = '';
 				}
 				if ($sCurrClass != $sPrevClass)
 				{
 					$this->bFormRedrawNeeded = true;
-					if($sCurrClass!="")
+					if ($sCurrClass != "")
 					{
 						$this->aProperties['depends_on'] = $this->GetDefaultAttributes($sCurrClass, 'depends_on');
 						$this->aProperties['label_0'] = $this->GetDefaultAttributes($sCurrClass, 'name');
 						$this->aProperties['start_date_0'] = $this->GetDefaultAttributes($sCurrClass, 'start_date');
 						$this->aProperties['end_date_0'] = $this->GetDefaultAttributes($sCurrClass, 'end_date');
 						$this->aProperties['percentage_0'] = $this->GetDefaultAttributes($sCurrClass, 'completion');
+						$this->aProperties['parent_0'] = $this->GetDefaultAttributes($sCurrClass, 'group_by');
+
+						try
+						{
+							$sClass = $this->oModelReflection->GetAttributeProperty($sCurrClass, $this->aProperties['parent_0'],
+								'targetclass');
+							if ($sClass != "")
+							{
+								$this->aProperties['label_1'] = $this->GetDefaultAttributes($sClass, 'name');
+								$this->aProperties['start_date_1'] = $this->GetDefaultAttributes($sClass, 'start_date');
+								$this->aProperties['end_date_1'] = $this->GetDefaultAttributes($sClass, 'end_date');
+								$this->aProperties['percentage_1'] = $this->GetDefaultAttributes($sClass, 'completion');
+								$this->aProperties['parent_1'] = $this->GetDefaultAttributes($sClass, 'group_by');
+							}
+							else
+							{
+								$this->aProperties['label_1'] = '';
+								$this->aProperties['start_date_1'] = '';
+								$this->aProperties['end_date_1'] = '';
+								$this->aProperties['percentage_1'] = '';
+								$this->aProperties['parent_1'] = '';
+							}
+							$this->aProperties['class_1'] = $sClass;
+							$aValues['class_1'] = $sClass;
+						}
+						catch (Exception $e)
+						{
+							$this->aProperties['label_1'] = '';
+							$this->aProperties['start_date_1'] = '';
+							$this->aProperties['end_date_1'] = '';
+							$this->aProperties['percentage_1'] = '';
+							$this->aProperties['parent_1'] = '';
+							$this->aProperties['class_1'] = '';
+							$aValues['class_1'] = '';
+						}
+						$this->aProperties['additional_info1_1'] = '';
+						$this->aProperties['additional_info2_1'] = '';
 					}
-					else{
+					else
+					{
 						$this->aProperties['depends_on'] = '';
 						$this->aProperties['label_0'] = '';
 						$this->aProperties['start_date_0'] = '';
 						$this->aProperties['end_date_0'] = '';
 						$this->aProperties['percentage_0'] = '';
+						$this->aProperties['parent_0'] = '';
 					}
 					// wrong but not necessary - unset($aUpdatedFields['group_by']);
 					$this->aProperties['target_depends_on'] = '';
 					$this->aProperties['additional_info1_0'] = '';
 					$this->aProperties['additional_info2_0'] = '';
-					$this->aProperties['parent_0'] = '';
 					$this->aProperties['class_0'] = $sCurrClass;
 					$aValues['class_0'] = $sCurrClass;
 					array_push($aUpdatedFields, 'class_0');
@@ -416,7 +464,7 @@ class GanttDashlet extends Dashlet
 		if (in_array('depends_on', $aUpdatedFields))
 		{
 			$this->bFormRedrawNeeded = true;
-			if($this->aProperties['depends_on'])
+			if ($this->aProperties['depends_on'])
 			{
 				if (MetaModel::GetAttributeDef($aValues['class_0'], $aValues['depends_on']) instanceof AttributeLinkedSetIndirect)
 				{
@@ -438,12 +486,68 @@ class GanttDashlet extends Dashlet
 		{
 			//redraw
 			$this->bFormRedrawNeeded = true;
+			try
+			{
+				$sClass = $this->oModelReflection->GetAttributeProperty($this->aProperties['class_0'], $this->aProperties['parent_0'],
+					'targetclass');
+				if ($sClass != "")
+				{
+					$this->aProperties['label_1'] = $this->GetDefaultAttributes($sClass, 'name');
+					$this->aProperties['start_date_1'] = $this->GetDefaultAttributes($sClass, 'start_date');
+					$this->aProperties['end_date_1'] = $this->GetDefaultAttributes($sClass, 'end_date');
+					$this->aProperties['percentage_1'] = $this->GetDefaultAttributes($sClass, 'completion');
+					$this->aProperties['parent_1'] = $this->GetDefaultAttributes($sClass, 'group_by');
+				}
+				else
+				{
+					$this->aProperties['label_1'] = '';
+					$this->aProperties['start_date_1'] = '';
+					$this->aProperties['end_date_1'] = '';
+					$this->aProperties['percentage_1'] = '';
+					$this->aProperties['parent_1'] = '';
+				}
+				$this->aProperties['class_1'] = $sClass;
+				$aValues['class_1'] = $sClass;
+			}
+			catch (Exception $e)
+			{
+				$this->aProperties['label_1'] = '';
+				$this->aProperties['start_date_1'] = '';
+				$this->aProperties['end_date_1'] = '';
+				$this->aProperties['percentage_1'] = '';
+				$this->aProperties['parent_1'] = '';
+				$this->aProperties['class_1'] = '';
+				$aValues['class_1'] = '';
+			}
+			$this->aProperties['additional_info1_1'] = '';
+			$this->aProperties['additional_info2_1'] = '';
 			array_push($aUpdatedFields, 'class_1');
 		}
 
 		return parent::Update($aValues, $aUpdatedFields);
 	}
+	/**
+	 * @param array $aParams
+	 */
+	public function OnUpdate(){
+		$sCurrQuery = $this->aProperties['oql'];
+		$sClass = $this->oModelReflection->GetQuery($sCurrQuery)->GetClass();
+		$this->aProperties['class_0']=$sClass;
 
+		if($this->aProperties['depends_on']!='')
+		{
+			if (MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on']) instanceof AttributeLinkedSetIndirect)
+			{
+				$this->aProperties['target_depends_on'] = MetaModel::GetAttributeDef($sClass,
+					$this->aProperties['depends_on'])->GetExtKeyToRemote();
+			}
+			elseif (MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on']) instanceof AttributeLinkedSet)
+			{
+				$this->aProperties['target_depends_on'] = MetaModel::GetAttributeDef($sClass,
+					$this->aProperties['depends_on'])->GetExtKeyToMe();
+			}
+		}
+	}
 	/**
 	 * @inheritdoc
 	 */
