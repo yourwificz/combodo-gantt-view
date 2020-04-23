@@ -191,13 +191,13 @@ Ganttalendar.prototype.createGanttGrid = function () {
         $(svg).addClass("ganttSVGBox");
 
         //creates grid group
-        var gridGroup = svg.group("gridGroup");
+        var gridGroup = svg.group("gridGroup"+self.master.idGantt);
 
         //creates links group
-        self.linksGroup = svg.group("linksGroup");
+        self.linksGroup = svg.group("linksGroup"+self.master.idGantt);
 
         //creates tasks group
-        self.tasksGroup = svg.group("tasksGroup");
+        self.tasksGroup = svg.group("tasksGroup"+self.master.idGantt);
 
         //compute scalefactor fx
         //self.fx = computedTableWidth / (endPeriod - startPeriod);
@@ -674,7 +674,7 @@ Ganttalendar.prototype.redrawLinks = function () {
     //var prof=new Profiler("gd_drawLink_real");
 
     //remove all links
-    $("#linksGroup").empty();
+    $("#linksGroup"+self.master.idGantt).empty();
 
     var collapsedDescendant = [];
 
@@ -707,7 +707,7 @@ Ganttalendar.prototype.reset = function () {
 
 
 Ganttalendar.prototype.redrawTasks = function (drawAll) {
-  //console.debug("redrawTasks ");
+  console.warn("redrawTasks ");
   var self=this;
   //var prof = new Profiler("ganttRedrawTasks");
 
@@ -718,8 +718,8 @@ Ganttalendar.prototype.redrawTasks = function (drawAll) {
   var startRowAdd=self.master.firstScreenLine-self.master.rowBufferSize;
   var endRowAdd =self.master.firstScreenLine+self.master.numOfVisibleRows+self.master.rowBufferSize;
 
-  $("#linksGroup,#tasksGroup").empty();
-  var gridGroup=$("#gridGroup").empty().get(0);
+  $("#linksGroup"+self.master.idGantt+",#tasksGroup"+self.master.idGantt).empty();
+  var gridGroup=$("#gridGroup"+self.master.idGantt).empty().get(0);
 
   //add missing ones
   var row=0;

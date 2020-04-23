@@ -7,25 +7,25 @@
 		<div class="main_header">
 			<h1>{{ sTitle }}</h1>
 		</div>
-		<div id="workSpaceEdit" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px">
+		<div id="workSpace{{ sId }}" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px; max-height: 200px;">
 		</div>
-		<div id="gantEditorTemplates">
+		<div id="gantEditorTemplates{{ sId }}">
 			<div class="__template__" type="GANTBUTTONS"><!-- --></div>
 	{% else %}
-	<div id="workSpace" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px">
+	<div id="workSpace{{ sId }}" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px">
 	</div>
-	<div id="gantEditorTemplates">
+	<div id="gantEditorTemplates{{ sId }}">
 		<div class="__template__" type="GANTBUTTONS"><!--
 			<div class="ganttButtonBar noprint main_header">
 				<h1>{{ sTitle }}&nbsp;&nbsp;&nbsp;&nbsp;</h1>
-				<button onclick="$('#workSpace').trigger('zoomMinus.gantt'); return false;" class="button textual icon " title="zoom out"><span class="teamworkIcon">)</span></button>
-				<button onclick="$('#workSpace').trigger('zoomPlus.gantt');return false;" class="button textual icon " title="zoom in"><span class="teamworkIcon">(</span></button>
+				<button onclick="$('#workSpace{{ sId }}').trigger('zoomMinus.gantt'); return false;" class="button textual icon " title="zoom out"><span class="teamworkIcon">)</span></button>
+				<button onclick="$('#workSpace{{ sId }}').trigger('zoomPlus.gantt');return false;" class="button textual icon " title="zoom in"><span class="teamworkIcon">(</span></button>
 				<span class="ganttButtonSeparator"></span>
-				<button onclick="ge.gantt.showCriticalPath=!ge.gantt.showCriticalPath; ge.redraw();return false;" class="button textual icon requireCanSeeCriticalPath" title="CRITICAL_PATH"><span class="teamworkIcon">&pound;</span></button>
+				<button onclick="ge{{ sId }}.gantt.showCriticalPath=!ge{{ sId }}.gantt.showCriticalPath; ge{{ sId }}.redraw();return false;" class="button textual icon requireCanSeeCriticalPath" title="CRITICAL_PATH"><span class="teamworkIcon">&pound;</span></button>
 				<span class="ganttButtonSeparator requireCanSeeCriticalPath"></span>
-				<button onclick="ge.splitter.resize(.1);return false;" class="button textual icon" ><span class="teamworkIcon">F</span></button>
-				<button onclick="ge.splitter.resize(50);return false;" class="button textual icon" ><span class="teamworkIcon">O</span></button>
-				<button onclick="ge.splitter.resize(100);return false;" class="button textual icon"><span class="teamworkIcon">R</span></button>
+				<button onclick="ge{{ sId }}.splitter.resize(.1);return false;" class="button textual icon" ><span class="teamworkIcon">F</span></button>
+				<button onclick="ge{{ sId }}.splitter.resize(50);return false;" class="button textual icon" ><span class="teamworkIcon">O</span></button>
+				<button onclick="ge{{ sId }}.splitter.resize(100);return false;" class="button textual icon"><span class="teamworkIcon">R</span></button>
 			</div>
 			-->
 		</div>

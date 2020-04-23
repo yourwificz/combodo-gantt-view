@@ -5,7 +5,7 @@
 
 {% block loadJS %}
 
-	var aGtFilesToLoad = [
+	var aGtFilesToLoad{{ sId }} = [
 
 	    // CSS
 	    { url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/platform.css?v=$sModuleVersion", type: "text" },
@@ -36,40 +36,39 @@
 	    { url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/ganttGridEditor.js?v=$sModuleVersion", type: "script" },
 	    { url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/ganttMaster.js?v=$sModuleVersion", type: "script" },
 	];
-	var iGtCurrentIdx = 0;
-	var iGtFilesToLoadCount = aGtFilesToLoad.length;
-	var fGtLoadScript = function(){
-
+	var iGtCurrentIdx{{ sId }} = 0;
+	var iGtFilesToLoadCount{{ sId }} = aGtFilesToLoad{{ sId }}.length;
+	var fGtLoadScript{{ sId }} = function(){
 	    $.when(
 	        $.ajax({
-	            url: aGtFilesToLoad[iGtCurrentIdx].url,
-	            dataType: aGtFilesToLoad[iGtCurrentIdx].type,
+	            url: aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].url,
+	            dataType: aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].type,
 	            cache: true
 	        })
 	            .done(function(){
-	                if ( (aGtFilesToLoad[iGtCurrentIdx].type === 'text') && ($('head link[type="text/css"][href="' + aGtFilesToLoad[iGtCurrentIdx].url + '"]').length === 0) )
+	                if ( (aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].type === 'text') && ($('head link[type="text/css"][href="' + aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].url + '"]').length === 0) )
 	                {
-	                	if(aGtFilesToLoad[iGtCurrentIdx].media) {
-			                $('<link rel="stylesheet" type="text/css" href="' + aGtFilesToLoad[iGtCurrentIdx].url + '" media="'+aGtFilesToLoad[iGtCurrentIdx].media+'"/>').appendTo('head');
+	                	if(aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].media) {
+			                $('<link rel="stylesheet" type="text/css" href="' + aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].url + '" media="'+aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].media+'"/>').appendTo('head');
 		                }
 	                	else
 		                {
-			                $('<link rel="stylesheet" type="text/css" href="' + aGtFilesToLoad[iGtCurrentIdx].url + '" />').appendTo('head');
+			                $('<link rel="stylesheet" type="text/css" href="' + aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].url + '" />').appendTo('head');
 		                }
 	                }
 	            })
 	    )
 	        .then(function(){
-	            iGtCurrentIdx++;
-	            if (iGtCurrentIdx !== iGtFilesToLoadCount)
+	            iGtCurrentIdx{{ sId }}++;
+	            if (iGtCurrentIdx{{ sId }} !== iGtFilesToLoadCount{{ sId }})
 	            {
-	                fGtLoadScript();
+	                fGtLoadScript{{ sId }}();
 	            }
 	            else
 	            {
-	                fGtInitCallback();
+	                fGtInitCallback{{ sId }}();
 	            }
 	        });
 	};
-	fGtLoadScript();
+	fGtLoadScript{{ sId }}();
 {% endblock %}

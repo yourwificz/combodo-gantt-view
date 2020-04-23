@@ -16,16 +16,17 @@
 
 {% block loadJS %}{% endblock %}
 
-var ge;
-function fGtInitCallback() {
+var ge{{ sId }};
+function fGtInitCallback{{ sId }}() {
     var canWrite=true; //this is the default for test purposes
 
     // here starts gantt initialization
-    ge = new GanttMaster();
-    ge.set100OnClose=false;
-    ge.fillWithEmptyLines=false;
-    ge.shrinkParent=false;
-    ge.permissions = {
+    ge{{ sId }} = new GanttMaster();
+    ge{{ sId }}.set100OnClose=false;
+    ge{{ sId }}.fillWithEmptyLines=false;
+    ge{{ sId }}.shrinkParent=false;
+	ge{{ sId }}.idGantt="{{ sId }}";
+    ge{{ sId }}.permissions = {
         canWriteOnParent: false,
         canWrite: false,
         canAdd: false,
@@ -39,41 +40,37 @@ function fGtInitCallback() {
         canAddIssue: false,
         cannotCloseTaskIfIssueOpen: false
     };
-   ge.resourceUrl = "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/res/";
-	{% if bEditMode %}
-        ge.init($("#workSpaceEdit"));
-	{% else %}
-        ge.init($("#workSpace"));
-	{% endif %}
-    ge.setHoursOn("2880000","6480000","{{dateFormat|raw}}","6000");
+   ge{{ sId }}.resourceUrl = "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/res/";
+	ge{{ sId }}.init($("#workSpace{{ sId }}"));
+    ge{{ sId }}.setHoursOn("2880000","6480000","{{dateFormat|raw}}","6000");
     loadI18n(); //overwrite with localized ones
 
     //in order to force compute the best-fitting zoom level
-    delete ge.gantt.zoom;
+    delete ge{{ sId }}.gantt.zoom;
 
-    loadGanttFromServer(0,alert);
+    loadGanttFromServer{{ sId }}(0,alert);
 
 }
 
-function loadGanttFromServer(taskId, callback) {
+function loadGanttFromServer{{ sId }}(taskId, callback) {
 //    console.warn('sScope:'+{{sScope|raw}});
     $.post('{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/ajax.php?operation=GetProject',
 		    {{sScope|raw}},null,'json')
         .done(function(data){
-            ge.loadProject(data);
-            ge.checkpoint(); //empty the undo stack
+            ge{{ sId }}.loadProject(data);
+            ge{{ sId }}.checkpoint(); //empty the undo stack
 	        console.warn('bPrintable:{{bPrintable}}');
 	        {% if(bPrintable!=1)  %}
-		        var maxHeight=ge.rowHeight*data.tasks.length+60;
-	            var myHeight=Math.min( $(window).height() - $('#TWGanttArea').position().top, maxHeight);
-	            $('#TWGanttArea').height( myHeight);
-		        $('#TWGanttArea').css('max-height', maxHeight+'px');
-	            $('#TWGanttArea').find(".splitBox2").scrollLeft(700);
+		        var maxHeight=ge{{ sId }}.rowHeight*data.tasks.length+60;
+	            var myHeight=Math.min( $(window).height() - $('#TWGanttArea{{ sId }}').position().top, maxHeight);
+	            $('#TWGanttArea{{ sId }}').height( myHeight);
+		        $('#TWGanttArea{{ sId }}').css('max-height', maxHeight+'px');
+	            $('#TWGanttArea{{ sId }}').find(".splitBox2").scrollLeft(700);
 
 		        //scrollTop: $(this).offset().top + $(this).height() / 2;
 	        {% else %}
-	            ge.isPrintable=true;
-	            ge.resize();
+	            ge{{ sId }}.isPrintable=true;
+	            ge{{ sId }}.resize();
 	        {% endif %}
         });
 
@@ -133,7 +130,7 @@ function saveGanttOnServer() {
 
 //-------------------------------------------  Get project file as JSON (used for migrate project from gantt to Teamwork) ------------------------------------------------------
 function getFile() {
-    $("#gimBaPrj").val(JSON.stringify(ge.saveProject()));
+    $("#gimBaPrj").val(JSON.stringify(ge{{ id }}.saveProject()));
     $("#gimmeBack").submit();
     $("#gimBaPrj").val("");
 
@@ -144,7 +141,7 @@ function getFile() {
 function showBaselineInfo (event,element){
     //alert(element.attr("data-label"));
     $(element).showBalloon(event, $(element).attr("data-label"));
-    ge.splitter.secondBox.one("scroll",function(){
+    ge{{ id }}.splitter.secondBox.one("scroll",function(){
         $(element).hideBalloon();
     })
 }

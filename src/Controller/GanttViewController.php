@@ -5,7 +5,6 @@
  */
 
 
-use const PHP_OS;
 
 class GanttViewController extends AbstractGanttViewController
 {

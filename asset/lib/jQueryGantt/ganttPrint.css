@@ -19,7 +19,7 @@ BODY, TBODY {
 }
 
 
-#TWGanttArea{
+.TWGanttArea{
   overflow-x: visible !important;
   overflow-y: visible !important;
   width: auto !important;

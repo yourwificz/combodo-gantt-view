@@ -34,6 +34,13 @@
   cursor: progress;
 }
 
+div.TWGanttArea{
+	padding:0;
+	overflow:hidden;
+	border:1px solid #e5e5e5;
+	position:relative;
+}
+
 /*
 -------------------------------------------------------
 teamwork icon

@@ -91,7 +91,7 @@ function GanttMaster() {
 }
 
 GanttMaster.prototype.init = function (workSpace) {
-  var place=$("<div>").prop("id","TWGanttArea").css( {padding:0, "overflow":"hidden","border":"1px solid #e5e5e5",position:"relative"});
+  var place=$("<div>").prop("id","TWGanttArea"+this.idGantt).addClass("TWGanttArea");
   workSpace.append(place).addClass("TWGanttWorkSpace");
 
   this.workSpace=workSpace;
@@ -103,7 +103,7 @@ GanttMaster.prototype.init = function (workSpace) {
 
   var self = this;
   //load templates
-  $("#gantEditorTemplates").loadTemplates().remove();
+  $("#gantEditorTemplates"+self.idGantt).loadTemplates().remove();
 
   //create editor
   this.editor = new GridEditor(this);
@@ -198,7 +198,7 @@ GanttMaster.prototype.init = function (workSpace) {
     var eventManaged = true;
     var isCtrl = e.ctrlKey || e.metaKey;
     var bodyOrSVG = e.target.nodeName.toLowerCase() == "body" || e.target.nodeName.toLowerCase() == "svg";
-    var inWorkSpace=$(e.target).closest("#TWGanttArea").length>0;
+    var inWorkSpace=$(e.target).closest("#TWGanttArea"+this.idGantt).length>0;
 
     //store focused field
     var focusedField=$(":focus");
@@ -251,10 +251,10 @@ GanttMaster.prototype.init = function (workSpace) {
   });
 
   //ask for comment input
-  $("#saveGanttButton").after($('#LOG_CHANGES_CONTAINER'));
+  //$("#saveGanttButton").after($('#LOG_CHANGES_CONTAINER'));
 
   //ask for comment management
-  this.element.on("saveRequired.gantt",this.manageSaveRequired);
+ // this.element.on("saveRequired.gantt",this.manageSaveRequired);
 
 
   //resize
