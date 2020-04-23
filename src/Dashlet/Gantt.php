@@ -99,6 +99,7 @@ class Gantt
 		{
 			$aQueryParams = array();
 		}
+
 		$oQuery = DBSearch::FromOQL($this->sOql, $aQueryParams);
 
 		$aFields = array($this->sLabel, $this->sStartDate, $this->sEndDate, 'id');
@@ -398,13 +399,24 @@ class Gantt
 	 * @throws \Exception
 	 * @throws \OQLException
 	 */
-	public function DisplayDashlet(\WebPage $oP, $sId = 'gantt')
+	public function DisplayDashlet(\WebPage $oP, $sId = '')
 	{
 		//render
+		if ($sId == "")
+		{
+			$sId="gantt".mt_rand();
+		}
+		//analyse of oql in order to resolve variableExpression
+		/*$oQuery = DBSearch::FromOQL($this->aScope['oql']);
+		$oQuery->MakeSelectQuery();
+		$newOQL=$oQuery->ToOQL();
+		$this->aScope['oql']=$newOQL;*/
+		$aScope=$this->aScope;
+		$aScope["extra_params"]=$this->aExtraParams;
 		$aData = array('sId' => $sId);
 		$aData['sTitle'] = $this->sTitle;
 		$aData['bEditMode'] = $this->bEditMode;
-		$aData['sScope'] = json_encode($this->aScope);
+		$aData['sScope'] = json_encode($aScope);
 		$aData['aDescription'] = $this->GetGanttDescription();
 		$aData['sAbsUrlModulesRoot'] = utils::GetAbsoluteUrlModulesRoot();
 		$aData['bPrintable'] = $oP->isPrintableVersion();
@@ -426,8 +438,32 @@ class Gantt
 	 * @throws \Exception
 	 * @throws \OQLException
 	 */
-	public function Display(\WebPage $oP, $sId = 'gantt')
+	public function Display(\WebPage $oP, $sId = '')
 	{
+		if ($sId == "")
+		{
+			$sId="gantt".mt_rand();
+		}
+		$aScope=$this->aScope;
+		$aScope["extra_params"]=$this->aExtraParams;
+		//analyse of oql in order to resolve variableExpression
+		/*$oQuery = DBSearch::FromOQL($this->aScope['oql']);
+		$oQuery->MakeSelectQuery();
+		$newOQL=$oQuery->ToOQL();
+		$this->aScope['oql']=$newOQL;*/
+		/*if (isset($this->aExtraParams['query_params']))
+		{
+			$aQueryParams = $this->aExtraParams['query_params'];
+		}
+		elseif (isset($this->aExtraParams['this->class']) && isset($this->aExtraParams['this->id']))
+		{
+			$oObj = MetaModel::GetObject($this->aExtraParams['this->class'], $this->aExtraParams['this->id']);
+			$aQueryParams = $oObj->ToArgsForQuery();
+		}
+		else
+		{
+			$aQueryParams = array();
+		}*/
 		//CSS
 		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.css');
 		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/platform.css');
@@ -469,11 +505,12 @@ class Gantt
 		$aData['bPrintable'] = $oP->isPrintableVersion();
 		//$aData['bSaveAllowed'] = true;
 		$aData['bSaveAllowed'] = $this->isSaveAllowed($this->aScope['class'], $this->bSaveAllowed);
-		$aData['sScope'] = json_encode($this->aScope);
+		$aData['sScope'] = json_encode($aScope);
 		$aData['aDescription'] = $this->GetGanttDescription();
 		$aData['sAbsUrlModulesRoot'] = utils::GetAbsoluteUrlModulesRoot();
 		$aData['dateFormat'] = "yy-MM-dd";
 		$aData['listeStatus'] = $this->GetListeColorsByStatus();
+		$aData['aExtraParams'] = $this->aExtraParams;
 
 		TwigHelper::RenderIntoPage($oP, MODULESROOT.'combodo-gantt-view/view', 'GanttViewer', $aData);
 	}

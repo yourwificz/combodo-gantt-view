@@ -707,7 +707,7 @@ Ganttalendar.prototype.reset = function () {
 
 
 Ganttalendar.prototype.redrawTasks = function (drawAll) {
-  console.warn("redrawTasks ");
+  //console.debug("redrawTasks ");
   var self=this;
   //var prof = new Profiler("ganttRedrawTasks");
 

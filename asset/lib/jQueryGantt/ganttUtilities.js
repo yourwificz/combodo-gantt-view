@@ -473,7 +473,7 @@ function recomputeDuration(start, end) {
 }
 
 function resynchDates(leavingField, startField, startMilesField, durationField, endField, endMilesField) {
-  console.warn("resynchDates",leavingField.prop("name"), "start. "+startField.val(),"durationField: "+ durationField.val(), "endField: "+endField.val());
+  //console.debug("resynchDates",leavingField.prop("name"), "start. "+startField.val(),"durationField: "+ durationField.val(), "endField: "+endField.val());
 
   function resynchDatesSetFields(command) {
     //console.debug("resynchDatesSetFields",command);

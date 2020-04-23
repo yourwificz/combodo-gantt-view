@@ -40,7 +40,7 @@ function fGtInitCallback{{ sId }}() {
         canAddIssue: false,
         cannotCloseTaskIfIssueOpen: false
     };
-   ge{{ sId }}.resourceUrl = "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/res/";
+    ge{{ sId }}.resourceUrl = "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/res/";
 	ge{{ sId }}.init($("#workSpace{{ sId }}"));
     ge{{ sId }}.setHoursOn("2880000","6480000","{{dateFormat|raw}}","6000");
     loadI18n(); //overwrite with localized ones
@@ -48,18 +48,22 @@ function fGtInitCallback{{ sId }}() {
     //in order to force compute the best-fitting zoom level
     delete ge{{ sId }}.gantt.zoom;
 
-    loadGanttFromServer{{ sId }}(0,alert);
-
+	if ($("#workSpace{{ sId }}").closest('.ui-tabs-panel').length > 0)
+	{
+		var tabPanel=$("#workSpace{{ sId }}").closest('.ui-tabs-panel').attr("aria-labelledby");
+		$("li[aria-labelledby="+tabPanel+"]").click( function() {  setTimeout( function(){ge{{ sId }}.redraw();} , 500); });
+	}
+	loadGanttFromServer{{ sId }}(0, alert);
 }
 
 function loadGanttFromServer{{ sId }}(taskId, callback) {
-//    console.warn('sScope:'+{{sScope|raw}});
+//    console.debug('sScope:'+{{sScope|raw}});
     $.post('{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/ajax.php?operation=GetProject',
 		    {{sScope|raw}},null,'json')
         .done(function(data){
             ge{{ sId }}.loadProject(data);
             ge{{ sId }}.checkpoint(); //empty the undo stack
-	        console.warn('bPrintable:{{bPrintable}}');
+
 	        {% if(bPrintable!=1)  %}
 		        var maxHeight=ge{{ sId }}.rowHeight*data.tasks.length+60;
 	            var myHeight=Math.min( $(window).height() - $('#TWGanttArea{{ sId }}').position().top, maxHeight);

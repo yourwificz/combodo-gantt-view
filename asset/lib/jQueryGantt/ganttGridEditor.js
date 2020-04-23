@@ -609,7 +609,6 @@ GridEditor.prototype.openFullEditor = function (task, editOnlyAssig) {
           workloadDatesChanged();
       }
     });
-	console.warn("jQueryGantt612+"+new Date(task.start).format());
     taskEditor.find("#startIsMilestone,#endIsMilestone").click(function () {
       var inp = $(this);
       resynchDates(inp, taskEditor.find("[name=start]"), taskEditor.find("[name=startIsMilestone]"), taskEditor.find("[name=duration]"), taskEditor.find("[name=end]"), taskEditor.find("[name=endIsMilestone]"));
@@ -699,10 +698,8 @@ GridEditor.prototype.openFullEditor = function (task, editOnlyAssig) {
       });
 
       //change dates
-	    console.warn("jQueryGantt702+"+new Date(task.start).format());
       task.setPeriod(Date.parseString(taskEditor.find("#start").val()).getTime(), Date.parseString(taskEditor.find("#end").val()).getTime() + (3600000 * 22));
 
-	    console.warn("jQueryGantt705+"+new Date(task.start).format());
       //change status
       task.changeStatus(taskEditor.find("#status").val());
 
@@ -721,7 +718,6 @@ GridEditor.prototype.openFullEditor = function (task, editOnlyAssig) {
   if (typeof(workloadDatesChanged)=="function")
     workloadDatesChanged();
 
-	console.warn("jQueryGantt724+"+new Date(task.start).format());
 
 
 };
