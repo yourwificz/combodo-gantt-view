@@ -51,9 +51,17 @@ function fGtInitCallback{{ sId }}() {
 	if ($("#workSpace{{ sId }}").closest('.ui-tabs-panel').length > 0)
 	{
 		var tabPanel=$("#workSpace{{ sId }}").closest('.ui-tabs-panel').attr("aria-labelledby");
-		$("li[aria-labelledby="+tabPanel+"]").click( function() {  setTimeout( function(){ge{{ sId }}.redraw();} , 500); });
+		$("li[aria-labelledby="+tabPanel+"]").click( function(){waitAndReload{{ sId }}();});
 	}
 	loadGanttFromServer{{ sId }}(0, alert);
+}
+
+function waitAndReload{{ sId }}(){
+	setTimeout(
+			function(){
+				ge{{ sId }}.splitter.resize(50);
+				ge{{ sId }}.redraw();
+			} , 500);
 }
 
 function loadGanttFromServer{{ sId }}(taskId, callback) {
