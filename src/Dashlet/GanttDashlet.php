@@ -175,7 +175,6 @@ class GanttDashlet extends Dashlet
 		// Date by field: build the list of possible values (attribute codes + ...)
 		$oQuery = null;
 		$sClass = null;
-		$aField = null;
 		try
 		{
 			$oQuery = $this->oModelReflection->GetQuery($this->aProperties['oql']);
@@ -222,20 +221,20 @@ class GanttDashlet extends Dashlet
 		while ($idx < 2)
 		{
 			$aDateOption = null;
-			$aField = null;
+			$aFieldText = null;
 			$aLinkParent = null;
 			$aNumberField = null;
 			try
 			{
 				$aDateOption = $this->GetOptions($sClass, true, false, false, false);
-				$aField = $this->GetOptions($sClass, false, false, false, false);
+				$aFieldText = $this->GetOptions($sClass, false, false, false, false);
 				$aLinkParent = $this->GetOptions($sClass, false, false, false, true);
 				$aNumberField = $this->GetOptions($sClass, false, true);
 			}
 			catch (Exception $e)
 			{
 				$aDateOption = null;
-				$aField = null;
+				$aFieldText = null;
 				$aLinkParent = null;
 				$aNumberField = null;
 			}
@@ -255,7 +254,7 @@ class GanttDashlet extends Dashlet
 
 			//label
 			$oForm->AddField($this->DisplayDesignerComboField('label_'.$idx, Dict::S('GanttDashlet/Prop:name'),
-				$this->aProperties['label_'.$idx], $aField, ($sClass != null), true));
+				$this->aProperties['label_'.$idx], $aFieldText, ($sClass != null), true));
 
 			//start date
 			$oForm->AddField($this->DisplayDesignerComboField('start_date_'.$idx, Dict::S('GanttDashlet/Prop:StartDate'),
@@ -285,12 +284,12 @@ class GanttDashlet extends Dashlet
 			//additional_info
 			$oForm->AddField($this->DisplayDesignerComboField('additional_info1_'.$idx,
 				Dict::Format('GanttDashlet/Prop:AdditionalInfoLeft'),
-				$this->aProperties['additional_info1_'.$idx], $aField, ($sClass != null), false));
+				$this->aProperties['additional_info1_'.$idx], $aFieldText, ($sClass != null), false));
 
 			//additional_info2
 			$oForm->AddField($this->DisplayDesignerComboField('additional_info2_'.$idx,
 				Dict::Format('GanttDashlet/Prop:AdditionalInfoRight'),
-				$this->aProperties['additional_info2_'.$idx], $aField, ($sClass != null), false));
+				$this->aProperties['additional_info2_'.$idx], $aFieldText, ($sClass != null), false));
 
 			//parent item
 			$oForm->AddField($this->DisplayDesignerComboField('parent_'.$idx, Dict::S('GanttDashlet/Prop:ParentField'),
@@ -635,8 +634,7 @@ class GanttDashlet extends Dashlet
 				}
 				if (!$isDate && !$isLink)
 				{
-					if (is_a($sAttType, 'AttributeFriendlyName', true)
-						|| is_a($sAttType, 'AttributeDateTime', true)
+					if ( is_a($sAttType, 'AttributeDateTime', true)
 						|| is_a($sAttType, 'AttributeCaseLog', true)
 						|| is_a($sAttType, 'AttributeText', true)
 						|| is_a($sAttType, 'AttributeLongText', true)
@@ -655,6 +653,14 @@ class GanttDashlet extends Dashlet
 				$sLabel = $this->oModelReflection->GetLabel($sClass, $sAttCode);
 				if (!in_array($sLabel, $aFields))
 				{
+					$aFields[$sAttCode] = $sLabel;
+				}
+				elseif (!$isLink and !$isLinkParent)
+				{
+					$key = array_search($sLabel, $aFields);
+					if ($key !== false) {
+						unset($aFields[$key]);
+					}
 					$aFields[$sAttCode] = $sLabel;
 				}
 			}

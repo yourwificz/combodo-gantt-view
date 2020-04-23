@@ -266,11 +266,12 @@ class Gantt
 		}
 		$aRow['end'] = $iEnd;
 		$aRow['duration'] = $iEnd - $iStart;
-		if ($this->sAdditionalInformation1 != '')
+		if ($aFields->sAdditionalInformation1 != '')
 		{
+			//$aGroupBy['group1']->MakeValueLabel($this->m_oFilter, $sStateValue, $sStateValue);
 			$aRow['info1'] = $oRow->Get($aFields->sAdditionalInformation1);
 		}
-		if ($this->sAdditionalInformation2 != '')
+		if ($aFields->sAdditionalInformation2 != '')
 		{
 			$aRow['info2'] = $oRow->Get($aFields->sAdditionalInformation2);
 		}
