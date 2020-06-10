@@ -85,6 +85,12 @@ GridEditor.prototype.fillEmptyLines = function () {
   }
 };
 
+GridEditor.prototype.addEmptyTask = function () {
+	//console.debug("fillEmptyLines")
+	//fill with empty lines
+	var emptyRow = $.JST.createFromTemplate({}, "TASKEMPTYROW");
+	this.element.append(emptyRow);
+};
 
 GridEditor.prototype.addTask = function (task, row, hideIfParentCollapsed) {
   //console.debug("GridEditor.addTask",task,row);

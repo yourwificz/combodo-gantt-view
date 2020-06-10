@@ -75,7 +75,7 @@ function loadGanttFromServer{{ sId }}(taskId, callback) {
 	        {% if(bPrintable!=1)  %}
 		        var maxHeight=ge{{ sId }}.rowHeight*data.tasks.length+60;
 	            var myHeight=Math.min( $(window).height() - $('#TWGanttArea{{ sId }}').position().top, maxHeight);
-	            $('#TWGanttArea{{ sId }}').height( myHeight);
+	            $('#TWGanttArea{{ sId }}').css('height', myHeight+'px');
 		        $('#TWGanttArea{{ sId }}').css('max-height', maxHeight+'px');
 	            $('#TWGanttArea{{ sId }}').find(".splitBox2").scrollLeft(700);
 

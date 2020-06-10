@@ -403,7 +403,7 @@ Ganttalendar.prototype.drawTask = function (task) {
 
 		var dimensions = {
 			x     : Math.round((task.start - self.startMillis) * self.fx),
-			y     : task.rowElement.position().top + task.rowElement.offsetParent().scrollTop() + self.taskVertOffset,
+			y     : task.rowElement.position().top  + self.taskVertOffset,
 			width : Math.max(Math.round((task.end - task.start) * self.fx), 1),
 			height: (self.master.showBaselines ? self.taskHeight / 1.3 : self.taskHeight)
 		};
@@ -534,7 +534,7 @@ Ganttalendar.prototype.drawLink = function (from, to, type) {
   function buildRectFromTask(task) {
     var self=task.master.gantt;
     var editorRow = task.rowElement;
-    var top = editorRow.position().top + editorRow.offsetParent().scrollTop();
+    var top = editorRow.position().top;
     var x = Math.round((task.start - self.startMillis) * self.fx);
     var rect = {left: x, top: top + self.taskVertOffset, width: Math.max(Math.round((task.end - task.start) * self.fx),1), height: self.taskHeight};
     return rect;

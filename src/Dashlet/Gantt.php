@@ -237,13 +237,20 @@ class Gantt
 		}
 		if ($hasChild == false && $aFields->sDependsOn != null && $aFields->sDependsOn != '')
 		{
-			if (count($oRow->Get($aFields->sDependsOn)) == 0 || $aFields->sTargetDependsOn == '')
+			if (count($oRow->Get($aFields->sDependsOn)) == 0 )
 			{
 				$aRow['dependson'] = [];
 			}
 			else
 			{
-				$aRow['dependson'] = $oRow->Get($aFields->sDependsOn)->GetColumnAsArray($aFields->sTargetDependsOn);
+				if ($aFields->sTargetDependsOn == '')
+				{
+					$aRow['dependson'] =  ($oRow->Get($aFields->sDependsOn)==0) ? [] : array($oRow->Get($aFields->sDependsOn)=>$oRow->Get($aFields->sDependsOn));
+				}
+				else
+				{
+					$aRow['dependson'] = $oRow->Get($aFields->sDependsOn)->GetColumnAsArray($aFields->sTargetDependsOn);
+				}
 			}
 		}
 		else
@@ -252,11 +259,20 @@ class Gantt
 		}
 		$aRow['canWrite'] = false;
 		$sFormat = "Y-m-d H:i:s";
+		if (strlen($oRow->Get($aFields->sStartDate)) < 12)
+		{
+			$sFormat = "Y-m-d";
+		}
 		$iStart = date_format(date_create_from_format($sFormat, $oRow->Get($aFields->sStartDate)), 'U') * 1000;
 		$aRow['start'] = $iStart;
 		$iEnd = 0;
 		if ($oRow->Get($aFields->sEndDate) != null)
 		{
+			$sFormat = "Y-m-d H:i:s";
+			if (strlen($oRow->Get($aFields->sEndDate)) < 12)
+			{
+				$sFormat = "Y-m-d";
+			}
 			$iEnd = date_format(date_create_from_format($sFormat, $oRow->Get($aFields->sEndDate)), 'U') * 1000;
 		}
 		else
@@ -310,7 +326,7 @@ class Gantt
 	public function GetGanttDescription()
 	{
 		$oQuery = DBSearch::FromOQL($this->sOql);
-		$sClass = $oQuery->GetClassAlias();
+		$sClass = $oQuery->GetClass();
 		$oAttLabelDef = MetaModel::GetAttributeDef($sClass, $this->sLabel);
 		$oAttLabelStartDate = MetaModel::GetAttributeDef($sClass, $this->sStartDate);
 		$oAttLabelEndDate = MetaModel::GetAttributeDef($sClass, $this->sEndDate);

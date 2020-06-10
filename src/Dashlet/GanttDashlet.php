@@ -79,6 +79,7 @@ class GanttDashlet extends Dashlet
 		$this->aProperties['label_2'] = '';
 		$this->aProperties['start_date_2'] = '';
 		$this->aProperties['end_date_2'] = '';
+		$this->aProperties['status_2'] = '';
 		$this->aProperties['additional_info1_2'] = '';
 		$this->aProperties['additional_info2_2'] = '';
 		$this->aProperties['percentage_2'] = '';
@@ -292,23 +293,31 @@ class GanttDashlet extends Dashlet
 				$this->aProperties['additional_info2_'.$idx], $aFieldText, ($sClass != null), false));
 
 			//parent item
-			$oForm->AddField($this->DisplayDesignerComboField('parent_'.$idx, Dict::S('GanttDashlet/Prop:ParentField'),
-				$this->aProperties['parent_'.$idx], $aLinkParent, ($sClass != null), false));
-
-			if ($this->aProperties['parent_'.$idx] != '')
+			if ($idx == 0)
 			{
-				try
+				$oForm->AddField($this->DisplayDesignerComboField('parent_'.$idx, Dict::S('GanttDashlet/Prop:ParentField'),
+					$this->aProperties['parent_'.$idx], $aLinkParent, ($sClass != null), false));
+
+				if ($this->aProperties['parent_'.$idx] != '')
 				{
-					$sClass = $this->oModelReflection->GetAttributeProperty($sClass, $this->aProperties['parent_'.$idx], 'targetclass');
+					try
+					{
+						$sClass = $this->oModelReflection->GetAttributeProperty($sClass, $this->aProperties['parent_'.$idx], 'targetclass');
+					}
+					catch (Exception $e)
+					{
+						$sClass = null;
+					}
 				}
-				catch (Exception $e)
+				else
 				{
 					$sClass = null;
 				}
 			}
 			else
 			{
-				$sClass = null;
+				$oField = new DesignerHiddenField('parent_'.$idx, '', $sClass);
+				$oForm->AddField($oField);
 			}
 			$idx++;
 		}

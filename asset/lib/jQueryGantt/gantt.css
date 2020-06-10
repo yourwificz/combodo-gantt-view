@@ -1,4 +1,8 @@
 
+.TWGanttWorkSpace {
+	overflow-y: hidden !important;
+}
+
 .TWGanttWorkSpace.ganttFullScreen{
   position: fixed;
   top:0;

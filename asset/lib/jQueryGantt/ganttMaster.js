@@ -428,7 +428,12 @@ GanttMaster.prototype.addTask = function (task, row) {
   return ret;
 };
 
+GanttMaster.prototype.addEmptyTask = function () {
+	//console.debug("master.addEmptyTask");
+		//append task to editor
+	this.editor.addEmptyTask();
 
+};
 /**
  * a project contains tasks, resources, roles, and info about permissions
  * @param project
@@ -547,7 +552,8 @@ GanttMaster.prototype.loadTasks = function (tasks, selectedRow) {
       this.gantt.addTask(task);
     }
   }
-
+	//add empty row at the end
+	this.addEmptyTask();
   //this.editor.fillEmptyLines();
   //prof.stop();
 
