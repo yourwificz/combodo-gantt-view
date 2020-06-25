@@ -245,6 +245,7 @@ $.splittify = {
         var pos = e.pageX - sb.parent().offset().left;
         var w = sb.parent().width();
         var fbw = firstBox;
+	    totalW = where.innerWidth();
 
         pos = pos > splitter.firstBoxMinWidth ? pos : splitter.firstBoxMinWidth;
         //pos = pos < realW - 10 ? pos : realW - 10;
