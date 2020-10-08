@@ -102,7 +102,7 @@ class Gantt
 
 		$oQuery = DBSearch::FromOQL($this->sOql, $aQueryParams);
 
-		$aFields = array($this->sLabel, $this->sStartDate, $this->sEndDate, 'id');
+		$aFields = array($this->sLabel, $this->sStartDate, $this->sEndDate);
 		if ($this->sDependsOn != null && $this->sDependsOn != '')
 		{
 			array_push($aFields, $this->sDependsOn);
@@ -128,7 +128,7 @@ class Gantt
 			array_push($aFields, $this->sStatus);
 		}
 		$oResultSql = new DBObjectSet($oQuery);
-		$oResultSql->OptimizeColumnLoad($aFields);
+		$oResultSql->OptimizeColumnLoad([$oQuery->GetClassAlias()=>$aFields]);
 		$sClass = $oResultSql->GetClass();
 		$aOrderBy = array();
 		if ($this->sParent != '')
