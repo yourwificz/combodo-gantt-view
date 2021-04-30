@@ -1,21 +1,10 @@
 <?php
-/**
- * Copyright (C) 2013-2020 Combodo SARL
- *
- * This file is part of iTop.
- *
- * iTop is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * iTop is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
  */
+
+use Combodo\iTop\Application\UI\Base\Layout\UIContentBlockUIBlockFactory;
 
 /**
  *
@@ -122,12 +111,23 @@ class GanttDashlet extends Dashlet
 
 		$oView = new Gantt($aScope, $bEditMode);
 		$sViewId = 'gantt_'.$this->sId.($bEditMode ? '_edit' : ''); // make a unique id (edition occuring in the same DOM)
-		$oView->DisplayDashlet($oPage, $sViewId);
 
-		if ($bEditMode)
-		{
-			$oPage->add('<div class="gantt-view-blocker"></div>');
+		if (version_compare(ITOP_VERSION, 3.0) >= 0) {
+			$oBlock = $oView->DisplayDashlet($oPage, $sViewId);
+			if ($bEditMode) {
+				$oBlock->AddSubBlock(UIContentBlockUIBlockFactory::MakeStandard(null, ["gantt-view-blocker"]));
+			}
+
+			return $oBlock;
+		} else {
+			$oView->DisplayDashletLegacy($oPage, $sViewId);
+			if ($bEditMode) {
+				$oPage->add('<div class="gantt-view-blocker"></div>');
+			}
+
+			return null;
 		}
+
 	}
 
 	protected function addFieldsToScope($idx)
@@ -372,37 +372,29 @@ class GanttDashlet extends Dashlet
 
 	public function Update($aValues, $aUpdatedFields)
 	{
-		if (in_array('oql', $aUpdatedFields))
-		{
-			try
-			{
+		if (in_array('oql', $aUpdatedFields)) {
+			try {
 				$sCurrClass = '';
 				$sPrevClass = '';
-				try
-				{
+				try {
 					$sCurrQuery = $aValues['oql'];
 					$oCurrSearch = $this->oModelReflection->GetQuery($sCurrQuery);
 					$sCurrClass = $oCurrSearch->GetClass();
 				}
-				catch (Exception $e)
-				{
+				catch (Exception $e) {
 					$sCurrClass = '';
 				}
-				try
-				{
+				try {
 					$sPrevQuery = $this->aProperties['oql'];
 					$oPrevSearch = $this->oModelReflection->GetQuery($sPrevQuery);
 					$sPrevClass = $oPrevSearch->GetClass();
 				}
-				catch (Exception $e)
-				{
+				catch (Exception $e) {
 					$sPrevClass = '';
 				}
-				if ($sCurrClass != $sPrevClass)
-				{
+				if ($sCurrClass != $sPrevClass) {
 					$this->bFormRedrawNeeded = true;
-					if ($sCurrClass != "")
-					{
+					if ($sCurrClass != "") {
 						$this->aProperties['depends_on'] = $this->GetDefaultAttributes($sCurrClass, 'depends_on');
 						$this->aProperties['label_0'] = $this->GetDefaultAttributes($sCurrClass, 'name');
 						$this->aProperties['start_date_0'] = $this->GetDefaultAttributes($sCurrClass, 'start_date');
@@ -410,20 +402,15 @@ class GanttDashlet extends Dashlet
 						$this->aProperties['percentage_0'] = $this->GetDefaultAttributes($sCurrClass, 'completion');
 						$this->aProperties['parent_0'] = $this->GetDefaultAttributes($sCurrClass, 'group_by');
 
-						try
-						{
-							$sClass = $this->oModelReflection->GetAttributeProperty($sCurrClass, $this->aProperties['parent_0'],
-								'targetclass');
-							if ($sClass != "")
-							{
+						try {
+							$sClass = $this->oModelReflection->GetAttributeProperty($sCurrClass, $this->aProperties['parent_0'], 'targetclass');
+							if ($sClass != "") {
 								$this->aProperties['label_1'] = $this->GetDefaultAttributes($sClass, 'name');
 								$this->aProperties['start_date_1'] = $this->GetDefaultAttributes($sClass, 'start_date');
 								$this->aProperties['end_date_1'] = $this->GetDefaultAttributes($sClass, 'end_date');
 								$this->aProperties['percentage_1'] = $this->GetDefaultAttributes($sClass, 'completion');
 								$this->aProperties['parent_1'] = $this->GetDefaultAttributes($sClass, 'group_by');
-							}
-							else
-							{
+							} else {
 								$this->aProperties['label_1'] = '';
 								$this->aProperties['start_date_1'] = '';
 								$this->aProperties['end_date_1'] = '';

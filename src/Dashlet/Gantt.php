@@ -1,23 +1,11 @@
 <?php
-/**
- * Copyright (C) 2013-2020 Combodo SARL
- *
- * This file is part of iTop.
- *
- * iTop is free software; you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * iTop is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
 use Combodo\iTop\Application\TwigBase\Twig\TwigHelper;
+use Combodo\iTop\Application\UI\Base\Layout\UIContentBlockUIBlockFactory;
 
 /**
  * Display of a named gantt into any WebPage
@@ -103,67 +91,51 @@ class Gantt
 		$oQuery = DBSearch::FromOQL($this->sOql, $aQueryParams);
 
 		$aFields = array($this->sLabel, $this->sStartDate, $this->sEndDate);
-		if ($this->sDependsOn != null && $this->sDependsOn != '')
-		{
+		if ($this->sDependsOn != null && $this->sDependsOn != '') {
 			array_push($aFields, $this->sDependsOn);
 		}
-		if ($this->sPercentage != null && $this->sPercentage != '')
-		{
+		if ($this->sPercentage != null && $this->sPercentage != '') {
 			array_push($aFields, $this->sPercentage);
 		}
-		if ($this->sAdditionalInformation1 != '')
-		{
+		if ($this->sAdditionalInformation1 != '') {
 			array_push($aFields, $this->sAdditionalInformation1);
 		}
-		if ($this->sAdditionalInformation2 != '')
-		{
+		if ($this->sAdditionalInformation2 != '') {
 			array_push($aFields, $this->sAdditionalInformation2);
 		}
-		if ($this->sParent != '')
-		{
+		if ($this->sParent != '') {
 			array_push($aFields, $this->sParent);
 		}
-		if ($this->sStatus != '')
-		{
+		if ($this->sStatus != '') {
 			array_push($aFields, $this->sStatus);
 		}
 		$oResultSql = new DBObjectSet($oQuery);
-		$oResultSql->OptimizeColumnLoad([$oQuery->GetClassAlias()=>$aFields]);
+		$oResultSql->OptimizeColumnLoad([$oQuery->GetClassAlias() => $aFields]);
 		$sClass = $oResultSql->GetClass();
 		$aOrderBy = array();
-		if ($this->sParent != '')
-		{
-			$aOrderBy[$sClass.'.'.$this->sParent] = true;
-		}
+		$aOrderBy[$sClass.'.'.$this->sStartDate] = true;
 		$oResultSql->SetOrderBy($aOrderBy);
 		$i = 0;
 		$aLevelParent1 = array();
 		$aLevelParent2 = array();
-		while ($oRow = $oResultSql->Fetch())
-		{
+		while ($oRow = $oResultSql->Fetch()) {
 			$Level = 0;
 			$canWrite = $this->bSaveAllowed;
-			if ($this->sParent != '' && $oRow->Get($this->sParent) != null)
-			{
-				if (!array_key_exists($oRow->Get($this->sParent), $aLevelParent1))
-				{
+			if ($this->sParent != '' && $oRow->Get($this->sParent) != null) {
+				if (!array_key_exists($oRow->Get($this->sParent), $aLevelParent1)) {
 					$aFieldsParent1 = $this->aParentFields;
 					$oObj = MetaModel::GetObject($aFieldsParent1->sClass, $oRow->Get($this->sParent), false /* MustBeFound */);
-					if ($oObj != null)
-					{
-						if ($canWrite)
-						{
-							$iFlags =  $oObj->GetAttributeFlags($this->sStartDate);
+					if ($oObj != null) {
+						if ($canWrite) {
+							$iFlags = $oObj->GetAttributeFlags($this->sStartDate);
 							if (($iFlags & OPT_ATT_READONLY) === OPT_ATT_READONLY
 								|| ($iFlags & OPT_ATT_SLAVE) === OPT_ATT_SLAVE
-								|| ($iFlags & OPT_ATT_HIDDEN) === OPT_ATT_HIDDEN)
-							{
+								|| ($iFlags & OPT_ATT_HIDDEN) === OPT_ATT_HIDDEN) {
 								$canWrite = false;
 							}
 						}
 						if ($aFieldsParent1->sParent != '' && $oObj->Get($aFieldsParent1->sParent) != '' && !array_key_exists($oObj->Get($aFieldsParent1->sParent),
-								$aLevelParent2))
-						{
+								$aLevelParent2)) {
 							$aFieldsParent2 = $aFieldsParent1->aParentFields;
 							$oObjParent = MetaModel::GetObject($aFieldsParent2->sClass, $oRow->Get($aFieldsParent1->sParent),
 								false /* MustBeFound */);
@@ -416,35 +388,73 @@ class Gantt
 	 * @throws \Exception
 	 * @throws \OQLException
 	 */
-	public function DisplayDashlet(\WebPage $oP, $sId = '')
+	public function DisplayDashlet(WebPage $oP, $sId = '')
 	{
+		if (version_compare(ITOP_VERSION, 3.0) < 0) {
+			return DisplayDashletLegacy($oP, $sId);
+		}
 		//render
-		if ($sId == "")
-		{
-			$sId="gantt".mt_rand();
+		if ($sId == "") {
+			$sId = "gantt".mt_rand();
 		}
 		//analyse of oql in order to resolve variableExpression
-		/*$oQuery = DBSearch::FromOQL($this->aScope['oql']);
-		$oQuery->MakeSelectQuery();
-		$newOQL=$oQuery->ToOQL();
-		$this->aScope['oql']=$newOQL;*/
-		$aScope=$this->aScope;
-		$aScope["extra_params"]=$this->aExtraParams;
+		$aScope = $this->aScope;
+		$aScope["extra_params"] = $this->aExtraParams;
 		$aData = array('sId' => $sId);
 		$aData['sTitle'] = $this->sTitle;
 		$aData['bEditMode'] = $this->bEditMode;
 		$aData['sScope'] = json_encode($aScope);
 		$aData['aDescription'] = $this->GetGanttDescription();
 		$aData['sAbsUrlModulesRoot'] = utils::GetAbsoluteUrlModulesRoot();
+		$aData['sModuleVersion'] = utils::GetCompiledModuleVersion(static::MODULE_CODE);
 		$aData['bPrintable'] = $oP->isPrintableVersion();
 
 		$aData['dateFormat'] = MetaModel::GetConfig()->Get('date_and_time_format')['default']['date'];
 		$aData['dateFormat'] = str_replace(array("y", "Y", "m", "d"), array("yy", "yyyy", "MM", "dd"), $aData['dateFormat']);
 		$aData['listeStatus'] = $this->GetListeColorsByStatus();
 
-		$oP->add_twig_template(MODULESROOT.'combodo-gantt-view/view', 'GanttViewerDashlet', $aData);
+		$oBlock = UIContentBlockUIBlockFactory::MakeStandard("");
+		TwigHelper::RenderIntoBlock($oP, $oBlock, MODULESROOT.'combodo-gantt-view/view', 'GanttViewerDashlet', $aData);
+
+		return $oBlock;
 	}
 
+	/**
+	 * Inserts the gantt (as a div) in the dashboard
+	 *
+	 * @deprecated since iTop 3.0 use DisplayDashlet
+	 *
+	 * @param string $sId
+	 *
+	 * @param \WebPage $oP The page used for the display
+	 *
+	 * @throws \OQLException
+	 * @throws \Exception
+	 */
+	public function DisplayDashletLegacy(\WebPage $oP, $sId = '')
+	{
+		//render
+		if ($sId == "") {
+			$sId = "gantt".mt_rand();
+		}
+		//analyse of oql in order to resolve variableExpression
+		$aScope = $this->aScope;
+		$aScope["extra_params"] = $this->aExtraParams;
+		$aData = array('sId' => $sId);
+		$aData['sTitle'] = $this->sTitle;
+		$aData['bEditMode'] = $this->bEditMode;
+		$aData['sScope'] = json_encode($aScope);
+		$aData['aDescription'] = $this->GetGanttDescription();
+		$aData['sAbsUrlModulesRoot'] = utils::GetAbsoluteUrlModulesRoot();
+		$aData['sModuleVersion'] = utils::GetCompiledModuleVersion(static::MODULE_CODE);
+		$aData['bPrintable'] = $oP->isPrintableVersion();
+
+		$aData['dateFormat'] = MetaModel::GetConfig()->Get('date_and_time_format')['default']['date'];
+		$aData['dateFormat'] = str_replace(array("y", "Y", "m", "d"), array("yy", "yyyy", "MM", "dd"), $aData['dateFormat']);
+		$aData['listeStatus'] = $this->GetListeColorsByStatus();
+
+		$oP->add_twig_template(MODULESROOT.'combodo-gantt-view/view', 'GanttViewerDashletLegacy', $aData);
+	}
 
 	/**
 	 * Inserts the gantt (as a div) at the current position into the given page
@@ -455,39 +465,23 @@ class Gantt
 	 * @throws \Exception
 	 * @throws \OQLException
 	 */
-	public function Display(\WebPage $oP, $sId = '')
+	public function Display(WebPage $oP, $sId = '')
 	{
-		if ($sId == "")
-		{
-			$sId="gantt".mt_rand();
+		if (version_compare(ITOP_VERSION, 3.0) < 0) {
+			DisplayLegacy($oP, $sId);
 		}
-		$aScope=$this->aScope;
-		$aScope["extra_params"]=$this->aExtraParams;
-		//analyse of oql in order to resolve variableExpression
-		/*$oQuery = DBSearch::FromOQL($this->aScope['oql']);
-		$oQuery->MakeSelectQuery();
-		$newOQL=$oQuery->ToOQL();
-		$this->aScope['oql']=$newOQL;*/
-		/*if (isset($this->aExtraParams['query_params']))
-		{
-			$aQueryParams = $this->aExtraParams['query_params'];
+		if ($sId == "") {
+			$sId = "gantt".mt_rand();
 		}
-		elseif (isset($this->aExtraParams['this->class']) && isset($this->aExtraParams['this->id']))
-		{
-			$oObj = MetaModel::GetObject($this->aExtraParams['this->class'], $this->aExtraParams['this->id']);
-			$aQueryParams = $oObj->ToArgsForQuery();
-		}
-		else
-		{
-			$aQueryParams = array();
-		}*/
+		$aScope = $this->aScope;
+		$aScope["extra_params"] = $this->aExtraParams;
 		//CSS
 		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.css');
 		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/platform.css');
 		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/gantt.css');
+		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/css/style.css');
 
-		if ($oP->isPrintableVersion())
-		{
+		if ($oP->isPrintableVersion()) {
 			$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttPrint.css');
 			$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/valueSlider/mb.slider.css');
 		}
@@ -525,6 +519,78 @@ class Gantt
 		$aData['sScope'] = json_encode($aScope);
 		$aData['aDescription'] = $this->GetGanttDescription();
 		$aData['sAbsUrlModulesRoot'] = utils::GetAbsoluteUrlModulesRoot();
+		$aData['sModuleVersion'] = utils::GetCompiledModuleVersion(static::MODULE_CODE);
+		$aData['dateFormat'] = "yy-MM-dd";
+		$aData['listeStatus'] = $this->GetListeColorsByStatus();
+		$aData['aExtraParams'] = $this->aExtraParams;
+
+		$oBlock = UIContentBlockUIBlockFactory::MakeStandard("");
+		TwigHelper::RenderIntoBlock($oP, $oBlock, MODULESROOT.'combodo-gantt-view/view', 'GanttViewer', $aData);
+
+		return $oBlock;
+	}
+
+	/**
+	 * Inserts the gantt (as a div) at the current position into the given page
+	 *
+	 * @param \WebPage $oP The page used for the display
+	 * @param string $sId
+	 *
+	 * @throws \Exception
+	 * @throws \OQLException
+	 */
+	public function DisplayLegacy(WebPage $oP, $sId = '')
+	{
+		if ($sId == "") {
+			$sId = "gantt".mt_rand();
+		}
+		$aScope = $this->aScope;
+		$aScope["extra_params"] = $this->aExtraParams;
+		//CSS
+		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.css');
+		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/platform.css');
+		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/gantt.css');
+		$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/css/style.css');
+
+		if ($oP->isPrintableVersion()) {
+			$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttPrint.css');
+			$oP->add_linked_stylesheet(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/valueSlider/mb.slider.css');
+		}
+		//JS
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/jquery.livequery.1.1.1.min.js');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/jquery.timers.js?v=$sModuleVersion');
+
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/utilities.js?v=$sModuleVersion');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/forms.js?v=$sModuleVersion');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/date.js?v=$sModuleVersion');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/dialogs.js');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/layout.js');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/i18nJs.js');
+
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.js');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/JST/jquery.JST.js');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/valueSlider/jquery.mb.slider.js');
+
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/svg/jquery.svg.min.js');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/svg/jquery.svgdom.1.8.js');
+
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttUtilities.js');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttTask.js');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttDrawerSVG.js');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttZoom.js');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttGridEditor.js');
+		$oP->add_linked_script(utils::GetAbsoluteUrlModulesRoot().'combodo-gantt-view/asset/lib/jQueryGantt/ganttMaster.js');
+		//render
+		$aData = array('sId' => $sId);
+		$aData['sTitle'] = $this->sTitle;
+		$aData['bEditMode'] = $this->bEditMode;
+		$aData['bPrintable'] = $oP->isPrintableVersion();
+		//$aData['bSaveAllowed'] = true;
+		$aData['bSaveAllowed'] = $this->isSaveAllowed($this->aScope['class'], $this->bSaveAllowed);
+		$aData['sScope'] = json_encode($aScope);
+		$aData['aDescription'] = $this->GetGanttDescription();
+		$aData['sAbsUrlModulesRoot'] = utils::GetAbsoluteUrlModulesRoot();
+		$aData['sModuleVersion'] = utils::GetCompiledModuleVersion(static::MODULE_CODE);
 		$aData['dateFormat'] = "yy-MM-dd";
 		$aData['listeStatus'] = $this->GetListeColorsByStatus();
 		$aData['aExtraParams'] = $this->aExtraParams;
@@ -540,5 +606,26 @@ class Gantt
 			&& ($oReflectionClass->IsSubclassOf('cmdbAbstractObject'))
 			&& $bSaveAllowed;
 	}
+
+	/**
+	 * @return mixed
+	 */
+	public function GetTitle()
+	{
+		return $this->sTitle;
+	}
+
+	/**
+	 * @param mixed $sTitle
+	 *
+	 * @return $this
+	 */
+	public function SetTitle($sTitle)
+	{
+		$this->sTitle = $sTitle;
+
+		return $this;
+	}
+
 }
 

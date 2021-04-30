@@ -1,11 +1,16 @@
 <?php
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
+ * @license     http://opensource.org/licenses/AGPL-3.0
+ */
+
 //
 // iTop module definition file
 //
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'combodo-gantt-view/1.0.2',
+	'combodo-gantt-view/1.0.3',
 	array(
 		// Identification
 		//

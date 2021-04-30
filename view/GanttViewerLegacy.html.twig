@@ -1,31 +1,30 @@
 {# @copyright   Copyright (C) 2010-2020 Combodo SARL #}
 {# @license     http://opensource.org/licenses/AGPL-3.0 #}
- {% UIContentBlock Standard {sId: sId , aContainerClasses:["gant-container"]} %}
-    {% block head %}
-    <div id="workSpace{{ sId }}" style="padding:0px; overflow-y:auto; overflow-x:hidden;position:relative;margin:0 5px; width:100%;">
-    </div>
-<div id="gantEditorTemplates{{ sId }}">
-    <div class="__template__" type="GANTBUTTONS"><!--
-			<div class="ganttButtonBar noprint main_header ibo-panel--header">
-				<div class="ibo-panel--header-left"><div class="ibo-panel--title">{{ sTitle }}</div></div>
-				<div class="ibo-panel--header-right">
-                            <button onclick="$('#workSpace{{ sId }}').trigger('zoomMinus.gantt'); return false;" class="ibo-button--icon" title="zoom out"><i class="fas fa-search-minus"></i></button>
-                            <button onclick="$('#workSpace{{ sId }}').trigger('zoomPlus.gantt');return false;" class="ibo-button--icon" title="zoom in"><i class="fas fa-search-plus"></i></button>
-                            <span class="ganttButtonSeparator"></span>
-                            <button onclick="ge{{ sId }}.gantt.showCriticalPath=!ge{{ sId }}.gantt.showCriticalPath; ge{{ sId }}.redraw();return false;" class="ibo-button--icon requireCanSeeCriticalPath" title="CRITICAL_PATH"><i class="fas fa-sitemap"></i></button>
-                            <span class="ganttButtonSeparator requireCanSeeCriticalPath"></span>
-                            <button onclick="ge{{ sId }}.splitter.resize(.1);return false;" class="ibo-button--icon" ><i class="fas fa-chevron-left"></i></button>
-                            <button onclick="ge{{ sId }}.splitter.resize(50);return false;" class="ibo-button--icon" ><i class="fas fa-columns"></i></button>
-                            <button onclick="ge{{ sId }}.splitter.resize(100);return false;" class="ibo-button--icon"><i class="fas fa-chevron-right"></i></button>
-                            {% if bSaveAllowed %}
-                                <span class="ganttButtonSeparator requireCanSeeCriticalPath"></span>
-                                <button onclick="saveGanttOnServer();" class="ibo-button--icon first big requireWrite" title="Save"><i class="fas fa-save"></i></button>
-                            {% endif %}
-				</div>
-			</div>
-                     --></div>
-    {% endblock %}
-    <div class="__template__" type="TASKEMPTYROW"><!--
+
+<div id="{{ sId }}" class="gant-container">
+	{% block head %}
+		<div id="workSpace{{ sId }}" style="padding:0px; overflow-y:auto; overflow-x:hidden;border:1px solid #e5e5e5;position:relative;margin:0 5px; width:100%;">
+		</div>
+		<div id="gantEditorTemplates{{ sId }}">
+			<div class="__template__" type="GANTBUTTONS"><!--
+				<p class="ganttButtonBar noprint">
+					{{ sTitle }}&nbsp;&nbsp;&nbsp;
+					<button onclick="$('#workSpace{{ sId }}').trigger('zoomMinus.gantt'); return false;" class="button textual icon " title="zoom out"><span class="teamworkIcon">)</span></button>
+					<button onclick="$('#workSpace{{ sId }}').trigger('zoomPlus.gantt');return false;" class="button textual icon " title="zoom in"><span class="teamworkIcon">(</span></button>
+					<span class="ganttButtonSeparator"></span>
+					<button onclick="ge{{ sId }}.gantt.showCriticalPath=!ge{{ sId }}.gantt.showCriticalPath; ge{{ sId }}.redraw();return false;" class="button textual icon requireCanSeeCriticalPath" title="CRITICAL_PATH"><span class="teamworkIcon">&pound;</span></button>
+					<span class="ganttButtonSeparator requireCanSeeCriticalPath"></span>
+					<button onclick="ge{{ sId }}.splitter.resize(.1);return false;" class="button textual icon" ><span class="teamworkIcon">F</span></button>
+					<button onclick="ge{{ sId }}.splitter.resize(50);return false;" class="button textual icon" ><span class="teamworkIcon">O</span></button>
+					<button onclick="ge{{ sId }}.splitter.resize(100);return false;" class="button textual icon"><span class="teamworkIcon">R</span></button>
+					{% if bSaveAllowed %}
+						<span class="ganttButtonSeparator requireCanSeeCriticalPath"></span>
+						<button onclick="saveGanttOnServer();" class="button first big requireWrite" title="Save">Save</button>
+					{% endif %}
+				</p>
+			 --></div>
+	{% endblock %}
+			<div class="__template__" type="TASKEMPTYROW"><!--
 			  <tr class="taskEditRow emptyRow" >
 			    <td class="gdfCell" align="right"></td>
 			    <td class="gdfCell noClip" align="center"></td>
@@ -94,7 +93,7 @@
 			</tr>
 		--></div>
 
-    <div class="__template__ ibo-panel--body" type="TASKBAR"><!--
+		<div class="__template__" type="TASKBAR"><!--
 			<div class="taskBox taskBoxDiv" taskId="(#=obj.id#)" >
 				<div class="layout (#=obj.hasExternalDep?'extDep':''#)">
 					<div class="taskStatus" status="(#=obj.status#)"></div>
@@ -103,5 +102,5 @@
 				</div>
 			</div>
 		--></div>
+	</div>
 </div>
-{% EndUIContentBlock %}
