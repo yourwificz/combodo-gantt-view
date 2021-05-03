@@ -1,8 +1,6 @@
 <?php
-/**
- * Localized data
- *
- * @copyright   Copyright (C) 2020 Combodo SARL
+/*
+ * @copyright   Copyright (C) 2010-2021 Combodo SARL
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 Dict::Add('FR FR', 'French', 'Français', array(
@@ -27,4 +25,11 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'GanttDashlet/Prop:ParentField' => 'Groupé par',
 	'GanttDashlet/Prop:Percentage' => 'Pourcentage d\'avancement',
 	'GanttDashlet/Prop:GroupByInformations' => 'Informations sur le regroupement',
+
+	'GanttDashlet/UI:CriticalPath' => 'Chemin critique',
+	'GanttDashlet/UI:ZoomIn' => 'Zoomer',
+	'GanttDashlet/UI:ZoomOut' => 'Dezoomer',
+	'GanttDashlet/UI:MoveSplitBarRight' => 'Mettre la séparation à droite',
+	'GanttDashlet/UI:MoveSplitBarLeft' => 'Mettre la séparation à gauche',
+	'GanttDashlet/UI:MoveSplitBarCenter' => 'Centrer la séparation',
 ));

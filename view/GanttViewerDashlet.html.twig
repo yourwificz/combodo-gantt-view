@@ -19,14 +19,14 @@
 			<div class="ganttButtonBar noprint main_header ibo-panel--header">
 				<div class="ibo-panel--header-left"><div class="ibo-panel--title">{{ sTitle }}</div></div>
 				<div class="ibo-panel--header-right">
-                    <button onclick="$('#workSpace{{ sId }}').trigger('zoomMinus.gantt'); return false;" class=" ibo-button--icon" title="zoom out"><i class="fas fa-search-minus"></i></button>
-                    <button onclick="$('#workSpace{{ sId }}').trigger('zoomPlus.gantt');return false;" class=" ibo-button--icon" title="zoom in"><i class="fas fa-search-plus"></i></button>
+                    <button onclick="$('#workSpace{{ sId }}').trigger('zoomMinus.gantt'); return false;" class=" ibo-button--icon" data-tooltip-content="{{ 'GanttDashlet/UI:ZoomOut'|dict_s }}"><i class="fas fa-search-minus"></i></button>
+                    <button onclick="$('#workSpace{{ sId }}').trigger('zoomPlus.gantt');return false;" class=" ibo-button--icon" data-tooltip-content="{{ 'GanttDashlet/UI:ZoomIn'|dict_s }}"><i class="fas fa-search-plus"></i></button>
                     <span class="ganttButtonSeparator"></span>
-                    <button onclick="ge{{ sId }}.gantt.showCriticalPath=!ge{{ sId }}.gantt.showCriticalPath; ge{{ sId }}.redraw();return false;" class=" ibo-button--icon requireCanSeeCriticalPath" title="CRITICAL_PATH"><i class="fas fa-sitemap"></i></button>
+                    <button onclick="ge{{ sId }}.gantt.showCriticalPath=!ge{{ sId }}.gantt.showCriticalPath; ge{{ sId }}.redraw();return false;" class=" ibo-button--icon requireCanSeeCriticalPath" data-tooltip-content="{{ 'GanttDashlet/UI:CriticalPath'|dict_s }}"><i class="fas  fa-project-diagram"></i></button>
                     <span class="ganttButtonSeparator requireCanSeeCriticalPath"></span>
-                    <button onclick="ge{{ sId }}.splitter.resize(.1);return false;" class="ibo-button--icon" ><i class="fas fa-chevron-left"></i></button>
-                    <button onclick="ge{{ sId }}.splitter.resize(50);return false;" class=" ibo-button--icon" ><i class="fas fa-columns"></i></button>
-                    <button onclick="ge{{ sId }}.splitter.resize(100);return false;" class=" ibo-button--icon"><i class="fas fa-chevron-right"></i></button>
+                    <button onclick="ge{{ sId }}.splitter.resize(.1);return false;" class="ibo-button--icon" data-tooltip-content="{{ 'GanttDashlet/UI:MoveSplitBarLeft'|dict_s }}"><i class="fas fa-chevron-left"></i></button>
+                    <button onclick="ge{{ sId }}.splitter.resize(50);return false;" class=" ibo-button--icon" data-tooltip-content="{{ 'GanttDashlet/UI:MoveSplitBarCenter'|dict_s }}"><i class="fas fa-columns"></i></button>
+                    <button onclick="ge{{ sId }}.splitter.resize(100);return false;" class=" ibo-button--icon" data-tooltip-content="{{ 'GanttDashlet/UI:MoveSplitBarRight'|dict_s }}"><i class="fas fa-chevron-right"></i></button>
 				</div>
 			</div>
 			-->
