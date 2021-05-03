@@ -209,18 +209,12 @@ class Gantt
 		}
 		if ($hasChild == false && $aFields->sDependsOn != null && $aFields->sDependsOn != '')
 		{
-			if (count($oRow->Get($aFields->sDependsOn)) == 0 )
-			{
+			if (empty($oRow->Get($aFields->sDependsOn))) {
 				$aRow['dependson'] = [];
-			}
-			else
-			{
-				if ($aFields->sTargetDependsOn == '')
-				{
-					$aRow['dependson'] =  ($oRow->Get($aFields->sDependsOn)==0) ? [] : array($oRow->Get($aFields->sDependsOn)=>$oRow->Get($aFields->sDependsOn));
-				}
-				else
-				{
+			} else {
+				if ($aFields->sTargetDependsOn == '') {
+					$aRow['dependson'] = ($oRow->Get($aFields->sDependsOn) == 0) ? [] : array($oRow->Get($aFields->sDependsOn) => $oRow->Get($aFields->sDependsOn));
+				} else {
 					$aRow['dependson'] = $oRow->Get($aFields->sDependsOn)->GetColumnAsArray($aFields->sTargetDependsOn);
 				}
 			}
