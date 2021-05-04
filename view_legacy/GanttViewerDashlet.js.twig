@@ -1,0 +1,75 @@
+{# @copyright   Copyright (C) 2010-2020 Combodo SARL #}
+{# @license     http://opensource.org/licenses/AGPL-3.0 #}
+{% extends  './GanttViewer.js.twig' %}
+
+
+{% block loadJS %}
+
+var aGtFilesToLoad{{ sId }} = [
+
+    // CSS
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/platform.css?v={{ sModuleVersion|raw }}", type: "text"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.css?v={{ sModuleVersion|raw }}", type: "text"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/gantt.css?v={{ sModuleVersion|raw }}", type: "text"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/css/style.css?v={{ sModuleVersion|raw }}", type: "text"},
+    {% if(bPrintable==1) %}
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/ganttPrint.css?v={{ sModuleVersion|raw }}", type: "text"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/valueSlider/mb.slider.css?v={{ sModuleVersion|raw }}", type: "text"},
+    {% endif %}
+    // JS
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/jquery.livequery.1.1.1.min.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/jquery.timers.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/utilities.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/forms.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/date.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/dialogs.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/layout.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/i18nJs.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/dateField/jquery.dateField.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/JST/jquery.JST.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/valueSlider/jquery.mb.slider.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/svg/jquery.svg.min.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/libs/jquery/svg/jquery.svgdom.1.8.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/ganttUtilities.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/ganttTask.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/ganttDrawerSVG.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/ganttZoom.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/ganttGridEditor.js?v={{ sModuleVersion|raw }}", type: "script"},
+    {url: "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/ganttMaster.js?v={{ sModuleVersion|raw }}", type: "script"},
+];
+var iGtCurrentIdx{{ sId }} = 0;
+var iGtFilesToLoadCount{{ sId }} = aGtFilesToLoad{{ sId }}.length;
+var fGtLoadScript{{ sId }} = function () {
+    $.when(
+            $.ajax({
+                        url: aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].url,
+                        dataType: aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].type,
+                        cache: true
+                    })
+	            .done(function(){
+	                if ( (aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].type === 'text') && ($('head link[type="text/css"][href="' + aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].url + '"]').length === 0) )
+	                {
+	                	if(aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].media) {
+			                $('<link rel="stylesheet" type="text/css" href="' + aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].url + '" media="'+aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].media+'"/>').appendTo('head');
+		                }
+	                	else
+		                {
+			                $('<link rel="stylesheet" type="text/css" href="' + aGtFilesToLoad{{ sId }}[iGtCurrentIdx{{ sId }}].url + '" />').appendTo('head');
+		                }
+	                }
+	            })
+	    )
+	        .then(function(){
+	            iGtCurrentIdx{{ sId }}++;
+	            if (iGtCurrentIdx{{ sId }} !== iGtFilesToLoadCount{{ sId }})
+	            {
+	                fGtLoadScript{{ sId }}();
+	            }
+	            else
+	            {
+	                fGtInitCallback{{ sId }}();
+	            }
+	        });
+	};
+
+{% endblock %}

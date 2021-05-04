@@ -1,0 +1,185 @@
+{# @copyright   Copyright (C) 2010-2020 Combodo SARL #}
+{# @license     http://opensource.org/licenses/AGPL-3.0 #}
+{% if listeStatus %}
+	{% for  key, value in listeStatus %}
+		{% if  key=='' %}
+			$("<style type='text/css'> .taskStatus{ background-color: {{ value.backgroundcolor }};color:{{ value.color }}; } </style>").appendTo("head");
+			$("<style type='text/css'> .colorByStatus .taskStatusSVG{ fill: {{ value.backgroundcolor }}; } </style>").appendTo("head");
+			$("<style type='text/css'> .colorByStatus .taskStatusSVG .textPerc{ fill:{{ value.color }}; } </style>").appendTo("head");
+		{% else %}
+			$("<style type='text/css'> .taskStatus[status={{key}}]{ background-color: {{ value.backgroundcolor }};color:{{ value.color }}; } </style>").appendTo("head");
+			$("<style type='text/css'> .colorByStatus .taskStatusSVG[status={{key}}]{ fill: {{ value.backgroundcolor }}; } </style>").appendTo("head");
+			$("<style type='text/css'> .colorByStatus .taskStatusSVG[status={{key}}] .textPerc{ fill:{{ value.color }}; } </style>").appendTo("head");
+		{%  endif %}
+	{% endfor %}
+{% endif %}
+
+{% block loadJS %}{% endblock %}
+
+var ge{{ sId }};
+function fGtInitCallback{{ sId }}() {
+    var canWrite=true; //this is the default for test purposes
+
+    // here starts gantt initialization
+    ge{{ sId }} = new GanttMaster();
+    ge{{ sId }}.set100OnClose=false;
+    ge{{ sId }}.fillWithEmptyLines=false;
+    ge{{ sId }}.shrinkParent=false;
+	ge{{ sId }}.idGantt="{{ sId }}";
+    ge{{ sId }}.permissions = {
+        canWriteOnParent: false,
+        canWrite: false,
+        canAdd: false,
+        canDelete: false,
+        canInOutdent: false,
+        canMoveUpDown: false,
+        canSeePopEdit: false,
+        canSeeFullEdit: false,
+        canSeeDep: true,
+        canSeeCriticalPath: true,
+        canAddIssue: false,
+        cannotCloseTaskIfIssueOpen: false
+    };
+    ge{{ sId }}.resourceUrl = "{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/asset/lib/jQueryGantt/res/";
+	ge{{ sId }}.init($("#workSpace{{ sId }}"));
+    ge{{ sId }}.setHoursOn("2880000","6480000","{{dateFormat|raw}}","6000");
+    loadI18n(); //overwrite with localized ones
+
+    //in order to force compute the best-fitting zoom level
+    delete ge{{ sId }}.gantt.zoom;
+
+	if ($("#workSpace{{ sId }}").closest('.ui-tabs-panel').length > 0)
+	{
+		var tabPanel=$("#workSpace{{ sId }}").closest('.ui-tabs-panel').attr("aria-labelledby");
+		$("li[aria-labelledby="+tabPanel+"]").click( function(){waitAndReload{{ sId }}();});
+	}
+	loadGanttFromServer{{ sId }}(0, alert);
+}
+
+function waitAndReload{{ sId }}(){
+	setTimeout(
+			function(){
+				ge{{ sId }}.splitter.resize(50);
+				ge{{ sId }}.redraw();
+			} , 500);
+}
+
+function loadGanttFromServer{{ sId }}(taskId, callback) {
+//    console.debug('sScope:'+{{sScope|raw}});
+    $.post('{{ sAbsUrlModulesRoot|raw }}combodo-gantt-view/ajax.php?operation=GetProject',
+		    {{sScope|raw}},null,'json')
+        .done(function(data){
+            ge{{ sId }}.loadProject(data);
+            ge{{ sId }}.checkpoint(); //empty the undo stack
+
+	        {% if(bPrintable!=1)  %}
+		        var maxHeight=ge{{ sId }}.rowHeight*data.tasks.length+60;
+	            var myHeight=Math.min( $(window).height() - $('#TWGanttArea{{ sId }}').position().top, maxHeight);
+	            $('#TWGanttArea{{ sId }}').css('height', myHeight+'px');
+		        $('#TWGanttArea{{ sId }}').css('max-height', maxHeight+'px');
+	            $('#TWGanttArea{{ sId }}').find(".splitBox2").scrollLeft(700);
+
+		        //scrollTop: $(this).offset().top + $(this).height() / 2;
+	        {% else %}
+	            ge{{ sId }}.isPrintable=true;
+	            ge{{ sId }}.resize();
+	        {% endif %}
+        });
+
+
+
+}
+
+function saveGanttOnServer() {
+
+    //this is a simulation: save data to the local storage or to the textarea
+
+    /*
+	var prj = ge.saveProject();
+
+	delete prj.resources;
+	delete prj.roles;
+
+	var prof = new Profiler("saveServerSide");
+	prof.reset();
+
+	if (ge.deletedTaskIds.length>0) {
+	  if (!confirm("TASK_THAT_WILL_BE_REMOVED\n"+ge.deletedTaskIds.length)) {
+		return;
+	  }
+	}
+
+	$.ajax("ganttAjaxController.jsp", {
+	  dataType:"json",
+	  data: {CM:"SVPROJECT",prj:JSON.stringify(prj)},
+	  type:"POST",
+
+	  success: function(response) {
+		if (response.ok) {
+		  prof.stop();
+		  if (response.project) {
+			ge.loadProject(response.project); //must reload as "tmp_" ids are now the good ones
+		  } else {
+			ge.reset();
+		  }
+		} else {
+		  var errMsg="Errors saving project\n";
+		  if (response.message) {
+			errMsg=errMsg+response.message+"\n";
+		  }
+
+		  if (response.errorMessages.length) {
+			errMsg += response.errorMessages.join("\n");
+		  }
+
+		  alert(errMsg);
+		}
+	  }
+
+	});
+	*/
+}
+
+//-------------------------------------------  Get project file as JSON (used for migrate project from gantt to Teamwork) ------------------------------------------------------
+function getFile() {
+    $("#gimBaPrj").val(JSON.stringify(ge{{ id }}.saveProject()));
+    $("#gimmeBack").submit();
+    $("#gimBaPrj").val("");
+
+    /*  var uriContent = "data:text/html;charset=utf-8," + encodeURIComponent(JSON.stringify(prj));
+	 neww=window.open(uriContent,"dl");*/
+}
+
+function showBaselineInfo (event,element){
+    //alert(element.attr("data-label"));
+    $(element).showBalloon(event, $(element).attr("data-label"));
+    ge{{ id }}.splitter.secondBox.one("scroll",function(){
+        $(element).hideBalloon();
+    })
+}
+
+function loadI18n(){
+    GanttMaster.messages = {
+        "CANNOT_WRITE":"No permission to change the following task:",
+        "CHANGE_OUT_OF_SCOPE":"Project update not possible as you lack rights for updating a parent project.",
+        "TASK_HAS_CONSTRAINTS":"Task has constraints.",
+        "GANTT_ERROR_DEPENDS_ON_OPEN_TASK":"Error: there is a dependency on an open task.",
+        "GANTT_ERROR_DESCENDANT_OF_CLOSED_TASK":"Error: due to a descendant of a closed task.",
+        "TASK_HAS_EXTERNAL_DEPS":"This task has external dependencies.",
+        "GANNT_ERROR_LOADING_DATA_TASK_REMOVED":"GANNT_ERROR_LOADING_DATA_TASK_REMOVED",
+        "CIRCULAR_REFERENCE":"Circular reference.",
+        "CANNOT_DEPENDS_ON_ANCESTORS":"Cannot depend on ancestors.",
+        "INVALID_DATE_FORMAT":"The data inserted are invalid for the field format.",
+        "GANTT_ERROR_LOADING_DATA_TASK_REMOVED":"An error has occurred while loading the data. A task has been trashed.",
+        "CANNOT_CLOSE_TASK_IF_OPEN_ISSUE":"Cannot close a task with open issues",
+        "TASK_MOVE_INCONSISTENT_LEVEL":"You cannot exchange tasks of different depth.",
+        "CANNOT_MOVE_TASK":"CANNOT_MOVE_TASK",
+        "PLEASE_SAVE_PROJECT":"PLEASE_SAVE_PROJECT",
+        "GANTT_SEMESTER":"Semester",
+        "GANTT_SEMESTER_SHORT":"s.",
+        "GANTT_QUARTER":"Quarter",
+        "GANTT_QUARTER_SHORT":"q.",
+        "GANTT_WEEK":"Week",
+        "GANTT_WEEK_SHORT":"w."
+    };
+}

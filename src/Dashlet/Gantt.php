@@ -385,7 +385,7 @@ class Gantt
 	public function DisplayDashlet(WebPage $oP, $sId = '')
 	{
 		if (version_compare(ITOP_VERSION, 3.0) < 0) {
-			return DisplayDashletLegacy($oP, $sId);
+			return $this->DisplayDashletLegacy($oP, $sId);
 		}
 		//render
 		if ($sId == "") {
@@ -447,7 +447,7 @@ class Gantt
 		$aData['dateFormat'] = str_replace(array("y", "Y", "m", "d"), array("yy", "yyyy", "MM", "dd"), $aData['dateFormat']);
 		$aData['listeStatus'] = $this->GetListeColorsByStatus();
 
-		$oP->add_twig_template(MODULESROOT.'combodo-gantt-view/view', 'GanttViewerDashletLegacy', $aData);
+		$oP->add_twig_template(MODULESROOT.'combodo-gantt-view/view_legacy', 'GanttViewerDashlet', $aData);
 	}
 
 	/**
@@ -462,7 +462,7 @@ class Gantt
 	public function Display(WebPage $oP, $sId = '')
 	{
 		if (version_compare(ITOP_VERSION, 3.0) < 0) {
-			DisplayLegacy($oP, $sId);
+			return	$this->DisplayLegacy($oP, $sId);
 		}
 		if ($sId == "") {
 			$sId = "gantt".mt_rand();
@@ -589,7 +589,7 @@ class Gantt
 		$aData['listeStatus'] = $this->GetListeColorsByStatus();
 		$aData['aExtraParams'] = $this->aExtraParams;
 
-		TwigHelper::RenderIntoPage($oP, MODULESROOT.'combodo-gantt-view/view', 'GanttViewer', $aData);
+		TwigHelper::RenderIntoPage($oP, MODULESROOT.'combodo-gantt-view/view_legacy', 'GanttViewer', $aData);
 	}
 
 	private function isSaveAllowed($sClass, $bSaveAllowed)
