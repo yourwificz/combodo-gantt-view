@@ -384,7 +384,7 @@ class Gantt
 	 */
 	public function DisplayDashlet(WebPage $oP, $sId = '')
 	{
-		if (version_compare(ITOP_VERSION, 3.0) < 0) {
+		if (version_compare(ITOP_DESIGN_LATEST_VERSION , 3.0) < 0) {
 			return $this->DisplayDashletLegacy($oP, $sId);
 		}
 		//render
@@ -461,7 +461,7 @@ class Gantt
 	 */
 	public function Display(WebPage $oP, $sId = '')
 	{
-		if (version_compare(ITOP_VERSION, 3.0) < 0) {
+		if (version_compare(ITOP_DESIGN_LATEST_VERSION , 3.0) < 0) {
 			return	$this->DisplayLegacy($oP, $sId);
 		}
 		if ($sId == "") {

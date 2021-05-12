@@ -112,7 +112,7 @@ class GanttDashlet extends Dashlet
 		$oView = new Gantt($aScope, $bEditMode);
 		$sViewId = 'gantt_'.$this->sId.($bEditMode ? '_edit' : ''); // make a unique id (edition occuring in the same DOM)
 
-		if (version_compare(ITOP_VERSION, 3.0) >= 0) {
+		if (version_compare(ITOP_DESIGN_LATEST_VERSION , 3.0) >= 0) {
 			$oBlock = $oView->DisplayDashlet($oPage, $sViewId);
 			if ($bEditMode) {
 				$oBlock->AddSubBlock(UIContentBlockUIBlockFactory::MakeStandard(null, ["gantt-view-blocker"]));
