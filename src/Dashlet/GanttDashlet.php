@@ -97,7 +97,11 @@ class GanttDashlet extends Dashlet
 			|| $aScope['start_date'] == ''
 			|| $aScope['end_date'] == '')
 		{
-			throw new Exception(Dict::Format('GanttDashlet/Error:ParametersMissing'));
+			if (isset($this->aProperties['error_class'])) {
+				throw new Exception($this->aProperties['error_class']);
+			} else {
+				throw new Exception(Dict::Format('GanttDashlet/Error:ParametersMissing'));
+			}
 		}
 		if (isset($aExtraParams['query_params']['this->object()']))
 		{
@@ -521,23 +525,36 @@ class GanttDashlet extends Dashlet
 
 		return parent::Update($aValues, $aUpdatedFields);
 	}
+
 	/**
 	 * @param array $aParams
 	 */
-	public function OnUpdate(){
+	public function OnUpdate()
+	{
 		$sCurrQuery = $this->aProperties['oql'];
-		$sClass = $this->oModelReflection->GetQuery($sCurrQuery)->GetClass();
-		$this->aProperties['class_0']=$sClass;
+		try {
+			$oQuery = $this->oModelReflection->GetQuery($sCurrQuery);
+			$sClass = $oQuery->GetClass();
+		}
+		catch (UnknownClassOqlException $e) {
+			$this->aProperties['error_class'] = $e->GetUserFriendlyDescription();
+			$sClass = '';
+		}
+		catch (OqlException $e) {
+			$this->aProperties['error_class'] = $e->GetUserFriendlyDescription();
+			$sClass = '';
+		}
+		catch (Exception $e) {
+			// Invalid query, let the user edit the dashlet/dashboard anyhow
+			$sClass = '';
+		}
+		$this->aProperties['class_0'] = $sClass;
 
-		if($this->aProperties['depends_on']!='')
-		{
-			if (MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on']) instanceof AttributeLinkedSetIndirect)
-			{
+		if ($this->aProperties['depends_on'] != '') {
+			if (MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on']) instanceof AttributeLinkedSetIndirect) {
 				$this->aProperties['target_depends_on'] = MetaModel::GetAttributeDef($sClass,
 					$this->aProperties['depends_on'])->GetExtKeyToRemote();
-			}
-			elseif (MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on']) instanceof AttributeLinkedSet)
-			{
+			} elseif (MetaModel::GetAttributeDef($sClass, $this->aProperties['depends_on']) instanceof AttributeLinkedSet) {
 				$this->aProperties['target_depends_on'] = MetaModel::GetAttributeDef($sClass,
 					$this->aProperties['depends_on'])->GetExtKeyToMe();
 			}

@@ -32,4 +32,6 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'GanttDashlet/UI:MoveSplitBarRight' => 'Mettre la séparation à droite',
 	'GanttDashlet/UI:MoveSplitBarLeft' => 'Mettre la séparation à gauche',
 	'GanttDashlet/UI:MoveSplitBarCenter' => 'Centrer la séparation',
+
+	'GanttDashlet/Error:ParametersMissing' => 'Il manque des paramètres. Veuillez vérifier le paramétrage. ',
 ));
