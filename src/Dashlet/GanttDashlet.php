@@ -97,7 +97,7 @@ class GanttDashlet extends Dashlet
 			|| $aScope['start_date'] == ''
 			|| $aScope['end_date'] == '')
 		{
-			if (isset($this->aProperties['error_class'])) {
+			if ($this->aProperties['class_0'] == '' && isset($this->aProperties['error_class'])) {
 				throw new Exception($this->aProperties['error_class']);
 			} else {
 				throw new Exception(Dict::Format('GanttDashlet/Error:ParametersMissing'));
@@ -535,6 +535,7 @@ class GanttDashlet extends Dashlet
 		try {
 			$oQuery = $this->oModelReflection->GetQuery($sCurrQuery);
 			$sClass = $oQuery->GetClass();
+			$this->aProperties['error_class'] = '';
 		}
 		catch (UnknownClassOqlException $e) {
 			$this->aProperties['error_class'] = $e->GetUserFriendlyDescription();
