@@ -34,5 +34,5 @@ Dict::Add('EN US', 'English', 'English', array(
 	'GanttDashlet/UI:MoveSplitBarLeft' => 'Move Split Bar Left',
 	'GanttDashlet/UI:MoveSplitBarCenter' => 'Center Split Bar',
 
-	'GanttDashlet/Error:ParametersMissing' => ' Missing some parameters, please check the configuration.',
+	'GanttDashlet/Error:ParametersMissing' => 'Missing some parameters, please check the configuration.',
 ));
