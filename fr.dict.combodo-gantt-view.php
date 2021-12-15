@@ -12,7 +12,7 @@ Dict::Add('FR FR', 'French', 'Français', array(
 	'GanttDashlet/Prop:DefaultTitle2' => 'Contacts',
 
 	'GanttDashlet/Prop:Class' => 'Classe',
-	'GanttDashlet/Prop:name' => 'Nom',
+	'GanttDashlet/Prop:Name' => 'Nom',
 	'GanttDashlet/Prop:StartDate' => 'Date de début~~',
 	'GanttDashlet/Prop:EndDate' => 'Date de fin~~',
 	'GanttDashlet/Prop:Title' => 'Titre',
