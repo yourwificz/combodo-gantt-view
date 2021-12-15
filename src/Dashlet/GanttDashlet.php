@@ -258,7 +258,7 @@ class GanttDashlet extends Dashlet
 			}
 
 			//label
-			$oForm->AddField($this->DisplayDesignerComboField('label_'.$idx, Dict::S('GanttDashlet/Prop:name'),
+			$oForm->AddField($this->DisplayDesignerComboField('label_'.$idx, Dict::S('GanttDashlet/Prop:Name'),
 				$this->aProperties['label_'.$idx], $aFieldText, ($sClass != null), true));
 
 			//start date
