@@ -183,13 +183,10 @@ class Gantt
 	{
 		$aRow = array();
 		$aRow['id'] = $sClass.'_'.$oRow->GetKey();
-		$aRow['name'] = $oRow->Get($aFields->sLabel);
-		if ($aFields->sPercentage != null && $aFields->sPercentage != '')
-		{
+		$aRow['name'] = utils::EscapeHtml($oRow->Get($aFields->sLabel));
+		if ($aFields->sPercentage != null && $aFields->sPercentage != '') {
 			$aRow['progress'] = $oRow->Get($aFields->sPercentage);
-		}
-		else
-		{
+		} else {
 			$aRow['progress'] = 0;
 		}
 		$aRow['progressByWorklog'] = true;
@@ -248,14 +245,12 @@ class Gantt
 		}
 		$aRow['end'] = $iEnd;
 		$aRow['duration'] = $iEnd - $iStart;
-		if ($aFields->sAdditionalInformation1 != '')
-		{
+		if ($aFields->sAdditionalInformation1 != '') {
 			//$aGroupBy['group1']->MakeValueLabel($this->m_oFilter, $sStateValue, $sStateValue);
-			$aRow['info1'] = $oRow->Get($aFields->sAdditionalInformation1);
+			$aRow['info1'] = utils::EscapeHtml($oRow->Get($aFields->sAdditionalInformation1));
 		}
-		if ($aFields->sAdditionalInformation2 != '')
-		{
-			$aRow['info2'] = $oRow->Get($aFields->sAdditionalInformation2);
+		if ($aFields->sAdditionalInformation2 != '') {
+			$aRow['info2'] = utils::EscapeHtml($oRow->Get($aFields->sAdditionalInformation2));
 		}
 		$aRow['collapsed'] = true;
 		$aRow['assigs'] = [];
