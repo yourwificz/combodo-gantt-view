@@ -183,7 +183,7 @@ class Gantt
 	{
 		$aRow = array();
 		$aRow['id'] = $sClass.'_'.$oRow->GetKey();
-		$aRow['name'] = utils::EscapeHtml($oRow->Get($aFields->sLabel));
+		$aRow['name'] = htmlspecialchars($oRow->Get($aFields->sLabel), ENT_QUOTES | ENT_DISALLOWED | ENT_HTML5, "UTF-8");
 		if ($aFields->sPercentage != null && $aFields->sPercentage != '') {
 			$aRow['progress'] = $oRow->Get($aFields->sPercentage);
 		} else {
@@ -247,10 +247,10 @@ class Gantt
 		$aRow['duration'] = $iEnd - $iStart;
 		if ($aFields->sAdditionalInformation1 != '') {
 			//$aGroupBy['group1']->MakeValueLabel($this->m_oFilter, $sStateValue, $sStateValue);
-			$aRow['info1'] = utils::EscapeHtml($oRow->Get($aFields->sAdditionalInformation1));
+			$aRow['info1'] = htmlspecialchars($oRow->Get($aFields->sAdditionalInformation1), ENT_QUOTES | ENT_DISALLOWED | ENT_HTML5, "UTF-8");
 		}
 		if ($aFields->sAdditionalInformation2 != '') {
-			$aRow['info2'] = utils::EscapeHtml($oRow->Get($aFields->sAdditionalInformation2));
+			$aRow['info2'] = htmlspecialchars($oRow->Get($aFields->sAdditionalInformation2), ENT_QUOTES | ENT_DISALLOWED | ENT_HTML5, "UTF-8");
 		}
 		$aRow['collapsed'] = true;
 		$aRow['assigs'] = [];
