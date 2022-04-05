@@ -31,7 +31,7 @@ class GanttDashlet extends Dashlet
 			&& $this->oModelReflection->IsValidAttCode("UserRequest", "related_request_list"))
 		{
 			$this->aProperties['title'] = Dict::S('GanttDashlet/Prop:DefaultTitle');
-			$this->aProperties['oql'] = 'SELECT UserRequest';
+			$this->aProperties['oql'] = 'SELECT UserRequest WHERE id = 1';
 			$this->aProperties['class_0'] = 'UserRequest';
 			$this->aProperties['depends_on'] = 'parent_request_id';
 			$this->aProperties['target_depends_on'] = '';
@@ -39,10 +39,9 @@ class GanttDashlet extends Dashlet
 			$this->aProperties['start_date_0'] = 'start_date';
 			$this->aProperties['end_date_0'] = 'end_date';
 		}
-		else
-		{
+		else {
 			$this->aProperties['title'] = Dict::S('GanttDashlet/Prop:DefaultTitle2');
-			$this->aProperties['oql'] = 'SELECT Contact ';
+			$this->aProperties['oql'] = 'SELECT Contact WHERE id = 1';
 			$this->aProperties['class_0'] = 'Contact';
 			$this->aProperties['depends_on'] = '';
 			$this->aProperties['target_depends_on'] = '';
