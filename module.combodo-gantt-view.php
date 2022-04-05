@@ -10,17 +10,17 @@
 
 SetupWebPage::AddModule(
 	__FILE__, // Path to the current file, all other file names are relative to the directory containing this file
-	'combodo-gantt-view/1.1.1',
+	'combodo-gantt-view/1.1.2',
 	array(
 		// Identification
 		//
-		'label' => 'Gantt',
-		'category' => 'business',
+		'label'        => 'Gantt',
+		'category'     => 'business',
 
 		// Setup
 		//
 		'dependencies' => array(),
-		'mandatory' => false,
+		'mandatory'    => false,
 		'visible' => true,
 
 		// Components
