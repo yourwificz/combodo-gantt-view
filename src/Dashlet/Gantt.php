@@ -113,6 +113,10 @@ class Gantt
 		$oResultSql->OptimizeColumnLoad([$oQuery->GetClassAlias() => $aFields]);
 		$sClass = $oResultSql->GetClass();
 		$aOrderBy = array();
+		if ($this->sParent != '')
+		{
+			$aOrderBy[$sClass.'.'.$this->sParent] = true;
+		}
 		$aOrderBy[$sClass.'.'.$this->sStartDate] = true;
 		$oResultSql->SetOrderBy($aOrderBy);
 		$i = 0;
