@@ -15,7 +15,7 @@ class GanttViewController extends AbstractGanttViewController
 		$this->AddLinkedScript(utils::GetAbsoluteUrlAppRoot().'/js/utils.js');
 		$this->AddLinkedScript(utils::GetAbsoluteUrlAppRoot().'/js/jquery.tablesorter.js');
 
-		if (version_compare(ITOP_DESIGN_LATEST_VERSION, '3.2.0', '<')) {
+		if (version_compare(ITOP_DESIGN_LATEST_VERSION, '3.2', '<')) {
 			$sAceDir = 'js/ace/';
 		} else {
 			$sAceDir = 'node_modules/ace-builds/src-min/';
