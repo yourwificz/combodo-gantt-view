@@ -1,6 +1,6 @@
 <?php
 /*
- * @copyright   Copyright (C) 2010-2021 Combodo SARL, 2022 ITOMIG GmbH
+ * @copyright   Copyright (C) 2010-2024 Combodo SAS, 2022 ITOMIG GmbH
  * @license     http://opensource.org/licenses/AGPL-3.0
  */
 
