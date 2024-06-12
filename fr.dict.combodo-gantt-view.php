@@ -13,8 +13,8 @@ Dict::Add('FR FR', 'French', 'Français', array(
 
 	'GanttDashlet/Prop:Class' => 'Classe',
 	'GanttDashlet/Prop:Name' => 'Nom',
-	'GanttDashlet/Prop:StartDate' => 'Date de début~~',
-	'GanttDashlet/Prop:EndDate' => 'Date de fin~~',
+	'GanttDashlet/Prop:StartDate' => 'Date de début',
+	'GanttDashlet/Prop:EndDate' => 'Date de fin',
 	'GanttDashlet/Prop:Title' => 'Titre',
 	'GanttDashlet/Prop:DependsOn' => 'Dépend de',
 	'GanttDashlet/Prop:ColoredField' => 'Coloré par',
