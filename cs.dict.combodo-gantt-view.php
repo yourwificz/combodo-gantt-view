@@ -10,7 +10,7 @@
 Dict::Add('CS CZ', 'Czech', 'Čeština', array(
 	// Dictionary entries go here
 	'GanttDashlet/Label' => 'Gantt',
-	'GanttDashlet/Description' => 'See objects as a Gantt',
+	'GanttDashlet/Description' => 'Zobrazit objekty jako Ganttův diagram',
 	'GanttDashlet/NoPreviewAvailable' => 'Náhled není k dispozici!',
 	'GanttDashlet/Prop:DefaultTitle' => 'Tikety',
 	'GanttDashlet/Prop:DefaultTitle2' => 'Kontakty',
@@ -30,7 +30,7 @@ Dict::Add('CS CZ', 'Czech', 'Čeština', array(
 	'GanttDashlet/Prop:Percentage' => 'Procento dokončení',
 	'GanttDashlet/Prop:GroupByInformations' => 'Seskupit dle informací',
 
-	'GanttDashlet/UI:CriticalPath' => 'Critical path',
+	'GanttDashlet/UI:CriticalPath' => 'Kritická cesta',
 	'GanttDashlet/UI:ZoomIn' => 'Zvětšit',
 	'GanttDashlet/UI:ZoomOut' => 'Zmenšit',
 	'GanttDashlet/UI:MoveSplitBarRight' => 'Posunout dělicí lištu vpravo',
